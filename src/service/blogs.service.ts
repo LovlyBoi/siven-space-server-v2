@@ -5,7 +5,12 @@ class BlogsService {
   // 获取全部博客
   getAllBlogs = async () => {
     // 到时候将fs操作改为从服务器获取
-    const cards = await fs.readFile(resolve(__dirname, "./cards.json"));
+    let cards: Buffer | string
+    try {
+      cards = await fs.readFile(resolve(__dirname, "./cards1.json"));
+    } catch (e: unknown) {
+      throw new Error('读取失败')
+    }
     return cards;
   };
   // 获取笔记类型博客
