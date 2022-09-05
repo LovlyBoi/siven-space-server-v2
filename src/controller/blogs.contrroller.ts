@@ -2,7 +2,7 @@ import type { Middleware, ParameterizedContext } from "koa";
 import { resolve } from "path";
 import { promises as fs } from "fs";
 
-class BlogController {
+class BlogController { 
   // 获取全部博客
   getAllBlogs = async (ctx: ParameterizedContext) => {
     const cards = await fs.readFile(resolve(__dirname, "./cards.json"));
