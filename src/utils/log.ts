@@ -1,4 +1,4 @@
-export default class Log {
+export class Log {
   static error(msg: string | Error) {
     if (msg instanceof Error) {
       console.error(msg.message);

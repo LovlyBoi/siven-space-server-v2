@@ -16,8 +16,7 @@ export function useEmit(
   errType: ErrorType,
   context: Context,
   error: Error,
-  errorMessage?: string
+  errorMessage: string | null = null
 ) {
-  errorMessage = errorMessage || error.message;
   context.app.emit("custom-error", errType, context, error, errorMessage);
 }

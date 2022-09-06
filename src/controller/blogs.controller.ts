@@ -18,7 +18,8 @@ class BlogController {
         cards = await getAllBlogs();
       }
     } catch (e: unknown) {
-      return useEmit(ErrorType.InternalServerError, ctx, e as Error);
+      const err = e as Error;
+      return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
     }
     ctx.type = "application/json";
     ctx.body = cards;

@@ -1,15 +1,17 @@
 import { Context } from "koa";
 import { ErrorType } from "../utils/useErrorEmit";
-import Log from "../utils/log";
+import { Log } from "../utils/log";
 
 // 自己emit的错误，在 utils/useEmit 可以提交
 export function customErrorHandler(
   errorType: ErrorType,
   ctx: Context,
   error: Error,
-  msg?: string
+  msg: string | null
 ) {
-  ctx.body = msg;
+  // 如果没有msg，就走koa默认的body
+  // 所以如果想要提交自定义的信息到客户端，需要传入第四个参数
+  msg && (ctx.body = msg);
   ctx.status = errorType;
   Log.error(error);
 }
