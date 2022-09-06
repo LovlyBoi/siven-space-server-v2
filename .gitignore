@@ -11,11 +11,15 @@ node_modules
 build
 *.local
 
+# 项目的缓存目录
+.siven*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+.VSCodeCounter
 *.suo
 *.ntvs*
 *.njsproj

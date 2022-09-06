@@ -10,6 +10,7 @@ specifiers:
   '@types/koa-bodyparser': ^4.3.7
   '@types/koa-router': ^7.4.4
   '@types/koa__cors': ^3.3.0
+  '@types/marked': ^4.0.6
   '@types/node': ^18.7.14
   commitizen: ^4.2.5
   dotenv: ^16.0.2
@@ -18,8 +19,9 @@ specifiers:
   koa: ^2.13.4
   koa-bodyparser: ^4.3.0
   koa-router: ^12.0.0
+  marked: ^4.1.0
   mysql2: ^2.3.3
-  nanoid: ^4.0.0
+  nanoid: 3.3.4
   nodemon: ^2.0.19
   ts-node: ^10.9.1
   typescript: ^4.8.2
@@ -30,8 +32,9 @@ dependencies:
   koa: 2.13.4
   koa-bodyparser: 4.3.0
   koa-router: 12.0.0
+  marked: 4.1.0
   mysql2: 2.3.3
-  nanoid: 4.0.0
+  nanoid: 3.3.4
 
 devDependencies:
   '@commitlint/cli': 17.1.2
@@ -42,6 +45,7 @@ devDependencies:
   '@types/koa-bodyparser': 4.3.7
   '@types/koa-router': 7.4.4
   '@types/koa__cors': 3.3.0
+  '@types/marked': 4.0.6
   '@types/node': 18.7.14
   commitizen: 4.2.5
   husky: 8.0.1
@@ -397,6 +401,10 @@ packages:
     resolution: {integrity: sha512-FUN8YxcBakIs+walVe3+HcNP+Bxd0SB8BJHBWkglZ5C1XQWljlKcEFDG/dPiCIqwVCUbc5X0nYDlH62uEhdHMA==}
     dependencies:
       '@types/koa': 2.13.5
+    dev: true
+
+  /@types/marked/4.0.6:
+    resolution: {integrity: sha512-ITAVUzsnVbhy5afxhs4PPPbrv2hKVEDH5BhhaQNQlVG0UNu+9A18XSdYr53nBdHZ0ADEQLl+ciOjXbs7eHdiQQ==}
     dev: true
 
   /@types/mime/3.0.1:
@@ -1645,6 +1653,12 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /marked/4.1.0:
+    resolution: {integrity: sha512-+Z6KDjSPa6/723PQYyc1axYZpYYpDnECDaU6hkaf5gqBieBkMKYReL5hteF2QizhlMbgbo8umXl/clZ67+GlsA==}
+    engines: {node: '>= 12'}
+    hasBin: true
+    dev: false
+
   /media-typer/0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
@@ -1757,9 +1771,9 @@ packages:
       lru-cache: 4.1.5
     dev: false
 
-  /nanoid/4.0.0:
-    resolution: {integrity: sha512-IgBP8piMxe/gf73RTQx7hmnhwz0aaEXYakvqZyE302IXW3HyVNhdNGC+O2MwMAVhLEnvXlvKtGbtJf6wvHihCg==}
-    engines: {node: ^14 || ^16 || >=18}
+  /nanoid/3.3.4:
+    resolution: {integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
     dev: false
 
