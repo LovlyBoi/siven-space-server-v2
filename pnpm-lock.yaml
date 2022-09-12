@@ -23,6 +23,7 @@ specifiers:
   mysql2: ^2.3.3
   nanoid: 3.3.4
   nodemon: ^2.0.19
+  siven-space-service-v2: 'link:'
   ts-node: ^10.9.1
   typescript: ^4.8.2
 
@@ -35,6 +36,7 @@ dependencies:
   marked: 4.1.0
   mysql2: 2.3.3
   nanoid: 3.3.4
+  siven-space-service-v2: 'link:'
 
 devDependencies:
   '@commitlint/cli': 17.1.2

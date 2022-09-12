@@ -11,7 +11,7 @@ export type Outline = OutlineItem[];
 
 export interface ParsedHtml {
   outline: Outline;
-  html: string;
+  html: string | Buffer;
 }
 
 export function parseMarkDown(markdownString: string | Buffer): ParsedHtml {

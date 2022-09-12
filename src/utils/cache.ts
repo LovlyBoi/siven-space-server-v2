@@ -1,4 +1,4 @@
-import { mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import { resolve, isAbsolute } from "path";
 import { parseMarkDown } from "./markdown";
@@ -57,13 +57,13 @@ export async function storeMarkDown(
   return file;
 }
 
-async function cacheHtml(id: string, html: string) {
+async function cacheHtml(id: string, html: string | Buffer) {
   const htmlDir = resolve(process.env.CACHE_DIR!, "./html");
   try {
     await writeFile(resolve(htmlDir, id), html);
   } catch (e) {
     console.log(e);
-    throw new Error("缓存 HTML 失败");
+    throw new Error(`缓存 HTML(${id})失败`);
   }
 }
 
@@ -73,18 +73,54 @@ async function cacheOutline(id: string, outline: Outline) {
     await writeFile(resolve(outlineDir, id), JSON.stringify(outline));
   } catch (e) {
     console.log(e);
-    throw new Error("缓存文章大纲失败");
+    throw new Error(`缓存文章大纲(${id})失败`);
   }
+}
+
+// 从缓存里读取
+async function getParsedFromCache(id: string): Promise<ParsedHtml | null> {
+  const htmlDir = resolve(process.env.CACHE_DIR!, "./html");
+  const outlineDir = resolve(process.env.CACHE_DIR!, "./outline");
+  let html: string | Buffer, outline: Outline;
+  // 缓存目录里没有
+  if (
+    !existsSync(resolve(htmlDir, id)) ||
+    !existsSync(resolve(outlineDir, id))
+  ) {
+    return null
+  }
+  // 从缓存里读
+  try {
+    html = await readFile(resolve(htmlDir, id));
+  } catch (e) {
+    console.log(`读取HTML(${id})缓存失败: `, e);
+    return null;
+  }
+  try {
+    outline = JSON.parse((await readFile(resolve(outlineDir, id))).toString());
+  } catch (e) {
+    console.log(`读取文章大纲(${id})缓存失败: `, e);
+    return null;
+  }
+  return {
+    html,
+    outline,
+  };
 }
 
 export async function getHtmlById(id: string): Promise<ParsedHtml> {
   const markdownDir = resolve(process.env.CACHE_DIR!, "./markdown");
 
+  // 之前解析过了，走缓存
+  const cachedParsed = await getParsedFromCache(id);
+  if (cachedParsed != null) return cachedParsed;
+
+  // 没解析过
   const mdBuffer = await readFile(resolve(markdownDir, id));
-  const { outline, html } = parseMarkDown(mdBuffer);
+  const parsed = parseMarkDown(mdBuffer);
 
   // 尝试缓存结果，不阻塞正常返回
-  cacheHtml(id, html);
-  cacheOutline(id, outline);
-  return { outline, html };
+  cacheHtml(id, parsed.html);
+  cacheOutline(id, parsed.outline);
+  return parsed;
 }

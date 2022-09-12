@@ -7,7 +7,7 @@ class BlogsService {
     // 到时候将fs操作改为从服务器获取
     let cards: Buffer | string
     try {
-      cards = await readFile(resolve(__dirname, "./cards1.json"));
+      cards = await readFile(resolve(__dirname, "./cards.json"));
     } catch (e) {
       throw new Error('数据库读取失败')
     }
