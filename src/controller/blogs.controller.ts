@@ -1,6 +1,7 @@
 import { Middleware } from "koa";
 import { useEmit, ErrorType } from "../utils/useErrorEmit";
 import { blogService } from "../service/blogs.service";
+import { BlogForJSON } from '../types'
 
 const { getAllBlogs, getEssayBlogs, getNoteBlogs } = blogService;
 
@@ -8,7 +9,7 @@ class BlogController {
   // 根据类型进行分类
   getBlogs: Middleware = async (ctx, next) => {
     const type = ctx.query.type;
-    let cards: Buffer | string;
+    let cards: BlogForJSON[] | string | Buffer;
     try {
       if (type === "note") {
         cards = await getNoteBlogs();

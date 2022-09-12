@@ -8,7 +8,10 @@ import { blogsRouter } from "../router/blogs.router";
 import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
-import { cacheInit } from '../utils/cache';
+import { cacheInit } from "../utils/cache";
+import { initDataBase } from "../dao/init.dao";
+
+// import '../test'
 
 function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
   if (Array.isArray(routers)) {
@@ -26,6 +29,9 @@ const app = new Koa();
 
 // 初始化缓存目录
 cacheInit();
+
+// 初始化数据库
+initDataBase();
 
 // 解决跨域
 app.use(CORS());

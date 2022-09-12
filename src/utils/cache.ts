@@ -57,6 +57,24 @@ export async function storeMarkDown(
   return file;
 }
 
+// 获取解析后的HTML
+export async function getHtmlById(id: string): Promise<ParsedHtml> {
+  const markdownDir = resolve(process.env.CACHE_DIR!, "./markdown");
+
+  // 之前解析过了，走缓存
+  const cachedParsed = await getParsedFromCache(id);
+  if (cachedParsed != null) return cachedParsed;
+
+  // 没解析过
+  const mdBuffer = await readFile(resolve(markdownDir, id));
+  const parsed = parseMarkDown(mdBuffer);
+
+  // 尝试缓存结果，不阻塞正常返回
+  cacheHtml(id, parsed.html);
+  cacheOutline(id, parsed.outline);
+  return parsed;
+}
+
 async function cacheHtml(id: string, html: string | Buffer) {
   const htmlDir = resolve(process.env.CACHE_DIR!, "./html");
   try {
@@ -106,21 +124,4 @@ async function getParsedFromCache(id: string): Promise<ParsedHtml | null> {
     html,
     outline,
   };
-}
-
-export async function getHtmlById(id: string): Promise<ParsedHtml> {
-  const markdownDir = resolve(process.env.CACHE_DIR!, "./markdown");
-
-  // 之前解析过了，走缓存
-  const cachedParsed = await getParsedFromCache(id);
-  if (cachedParsed != null) return cachedParsed;
-
-  // 没解析过
-  const mdBuffer = await readFile(resolve(markdownDir, id));
-  const parsed = parseMarkDown(mdBuffer);
-
-  // 尝试缓存结果，不阻塞正常返回
-  cacheHtml(id, parsed.html);
-  cacheOutline(id, parsed.outline);
-  return parsed;
 }

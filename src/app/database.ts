@@ -1,4 +1,5 @@
 import mysql from "mysql2";
+import type {  } from 'mysql2';
 
 function parsePort(port: string | undefined): number | undefined {
   return port == null
