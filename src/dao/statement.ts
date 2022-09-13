@@ -61,4 +61,25 @@ update_date as updateDate
 FROM
 blogs;`;
 
-export { INIT_DATABASE, STORE_BLOGS, GET_BLOGS_BY_TYPE, GET_ALL_BLOGS };
+const GET_BLOG_BY_ID = `SELECT
+nanoid as id,
+author,
+type,
+title,
+pics as pictures,
+JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
+cache_location as location,
+publish_date as publishDate,
+update_date as updateDate
+FROM
+blogs
+WHERE
+blogs.nanoid = ?;`;
+
+export {
+  INIT_DATABASE,
+  STORE_BLOGS,
+  GET_BLOGS_BY_TYPE,
+  GET_ALL_BLOGS,
+  GET_BLOG_BY_ID,
+};

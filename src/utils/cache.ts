@@ -2,7 +2,7 @@ import { existsSync, mkdirSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import { resolve, isAbsolute } from "path";
 import { parseMarkDown } from "./markdown";
-import type { Outline, ParsedHtml } from "./markdown";
+import type { Outline, ParsedHtml } from "../types";
 import { nanoid } from "nanoid";
 
 function makeId() {
@@ -75,6 +75,12 @@ export async function getHtmlById(id: string): Promise<ParsedHtml> {
   return parsed;
 }
 
+// 判断markdown文件是否存在
+export function isMarkDownExist(id: string) {
+  const markdownDir = resolve(process.env.CACHE_DIR!, "./markdown");
+  return existsSync(resolve(markdownDir, id))
+}
+
 async function cacheHtml(id: string, html: string | Buffer) {
   const htmlDir = resolve(process.env.CACHE_DIR!, "./html");
   try {
@@ -110,6 +116,7 @@ async function getParsedFromCache(id: string): Promise<ParsedHtml | null> {
   // 从缓存里读
   try {
     html = await readFile(resolve(htmlDir, id));
+    html = html.toString();
   } catch (e) {
     console.log(`读取HTML(${id})缓存失败: `, e);
     return null;

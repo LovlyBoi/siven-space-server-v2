@@ -1,18 +1,5 @@
 import { marked } from "marked";
-
-export interface OutlineItem {
-  anchor: string;
-  depth: number;
-  title: string;
-}
-
-// 大纲
-export type Outline = OutlineItem[];
-
-export interface ParsedHtml {
-  outline: Outline;
-  html: string | Buffer;
-}
+import type { ParsedHtml, Outline } from '../types'
 
 export function parseMarkDown(markdownString: string | Buffer): ParsedHtml {
   markdownString =

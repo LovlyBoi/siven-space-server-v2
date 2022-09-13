@@ -15,7 +15,7 @@ interface Blog {
 }
 
 // 发送给前端的 Blog 类型，不需要存储位置
-type BlogForJSON = {
+interface BlogForJSON {
   id: string;
   author: string;
   type: BlogType;
@@ -27,7 +27,7 @@ type BlogForJSON = {
   };
   publishDate: string;
   updateDate: string;
-}
+};
 
 enum BlogType {
   "note" = 1,
@@ -36,4 +36,31 @@ enum BlogType {
 
 type TagColor = "yellow" | "pink" | "green" | "indigo";
 
-export { Blog, BlogForJSON, BlogType, TagColor };
+interface OutlineItem {
+  anchor: string;
+  depth: number;
+  title: string;
+}
+
+// 大纲
+type Outline = OutlineItem[];
+
+interface ParsedHtml {
+  outline: Outline;
+  html: string | Buffer;
+}
+
+interface ParsedHtmlForJSON extends BlogForJSON {
+  parsed: ParsedHtml;
+}
+
+export {
+  Blog,
+  BlogForJSON,
+  BlogType,
+  TagColor,
+  OutlineItem,
+  Outline,
+  ParsedHtml,
+  ParsedHtmlForJSON,
+};

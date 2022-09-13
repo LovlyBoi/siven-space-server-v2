@@ -1,6 +1,11 @@
 import { pool } from "../app/database";
-import { STORE_BLOGS, GET_BLOGS_BY_TYPE, GET_ALL_BLOGS } from "./statement";
-import { Blog, BlogForJSON, BlogType } from "../types";
+import {
+  STORE_BLOGS,
+  GET_BLOGS_BY_TYPE,
+  GET_ALL_BLOGS,
+  GET_BLOG_BY_ID,
+} from "./statement";
+import type { Blog, BlogForJSON, BlogType } from "../types";
 
 // 存储 blog
 export async function storeBlogs(blog: Blog) {
@@ -66,4 +71,10 @@ export async function getAllBlogs(): Promise<BlogForJSON[]> {
   }
   result = result[0] as unknown as Blog[];
   return Blog2BlogForJSON(result);
+}
+
+// 通过 id 拿到具体的博客信息
+export async function getBlogById(id: string): Promise<BlogForJSON> {
+  const result = await pool.execute(GET_BLOG_BY_ID, [id]);
+  return (result[0] as unknown[])[0] as BlogForJSON;
 }

@@ -1,9 +1,15 @@
 import { Middleware } from "koa";
 import { useEmit, ErrorType } from "../utils/useErrorEmit";
 import { blogService } from "../service/blogs.service";
-import { BlogForJSON } from '../types'
+import { isMarkDownExist } from "../utils/cache";
+import type { BlogForJSON, ParsedHtmlForJSON } from "../types";
 
-const { getAllBlogs, getEssayBlogs, getNoteBlogs } = blogService;
+const {
+  getAllBlogs,
+  getEssayBlogs,
+  getNoteBlogs,
+  getBlogById: getBlogByIdService,
+} = blogService;
 
 class BlogController {
   // 根据类型进行分类
@@ -24,6 +30,27 @@ class BlogController {
     }
     ctx.type = "application/json";
     ctx.body = cards;
+    await next();
+  };
+  // 获取博客正文
+  getBlogById: Middleware = async (ctx, next) => {
+    const id = ctx.params.id as string;
+    console.log(ctx.params.id);
+    if (!isMarkDownExist(id)) {
+      return useEmit(ErrorType.NotFound, ctx, new Error("请求地址不存在"));
+    } else {
+      let data: ParsedHtmlForJSON;
+      try {
+        data = await getBlogByIdService(id);
+      } catch (e) {
+        return useEmit(
+          ErrorType.InternalServerError,
+          ctx,
+          new Error("获取博客失败")
+        );
+      }
+      ctx.body = data;
+    }
     await next();
   };
 }
