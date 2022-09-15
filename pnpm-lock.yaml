@@ -14,6 +14,7 @@ specifiers:
   '@types/node': ^18.7.14
   commitizen: ^4.2.5
   dotenv: ^16.0.2
+  highlight.js: ^11.6.0
   husky: ^8.0.1
   inquirer: '8'
   koa: ^2.13.4
@@ -30,6 +31,7 @@ specifiers:
 dependencies:
   '@koa/cors': 3.4.1
   dotenv: 16.0.2
+  highlight.js: 11.6.0
   koa: 2.13.4
   koa-bodyparser: 4.3.0
   koa-router: 12.0.0
@@ -1258,6 +1260,11 @@ packages:
     engines: {node: '>= 0.4.0'}
     dependencies:
       function-bind: 1.1.1
+
+  /highlight.js/11.6.0:
+    resolution: {integrity: sha512-ig1eqDzJaB0pqEvlPVIpSSyMaO92bH1N2rJpLMN/nX396wTpDA4Eq0uK+7I/2XG17pFaaKE0kjV/XPeGt7Evjw==}
+    engines: {node: '>=12.0.0'}
+    dev: false
 
   /homedir-polyfill/1.0.3:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}

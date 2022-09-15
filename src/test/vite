@@ -22,3 +22,20 @@ Vite 在一开始，就将模块分为**依赖**和**源码**两部分：
 
 - 依赖不经常变动，且可能存在多种模块化格式（CJS，ESM）。对于依赖，Vite 会进行预构建依赖，将依赖处理后放在 `node_modules/.vite/deps` 文件夹下。
 - 源码经常变动，需要被转换。
+
+```shell
+$ yarn create nuxt-app <project-name>
+```
+```vue
+<!-- @/pages/about.vue -->
+
+<script>
+export default {
+  middleware: 'auth', // 页面级 middleware
+  // 如果只有一个组件用，也可以这么写。
+  middleware(context) {
+    
+  }
+}
+</script>
+```
