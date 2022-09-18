@@ -2,16 +2,17 @@ import "./config";
 import "./database";
 import Koa from "koa";
 import KoaRouter from "koa-router";
+import KoaStatic from "koa-static";
 import CORS from "@koa/cors";
 import bodyParser from "koa-bodyparser";
 import { blogsRouter } from "../router/blogs.router";
+import { uploadRouter } from "../router/uploader.router";
 import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
 import { cacheInit } from "../utils/cache";
 import { initDataBase } from "../dao/init.dao";
-
-// import '../test'
+import { resolve } from "path";
 
 function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
   if (Array.isArray(routers)) {
@@ -30,6 +31,9 @@ const app = new Koa();
 // 初始化缓存目录
 cacheInit();
 
+console.log(process.env.CACHE_DIR)
+app.use(KoaStatic(resolve(process.env.CACHE_DIR!, './image')))
+
 // 初始化数据库
 initDataBase();
 
@@ -40,7 +44,7 @@ app.use(CORS());
 app.use(bodyParser());
 
 // 路由
-useRouter(app, [blogsRouter]);
+useRouter(app, [blogsRouter, uploadRouter]);
 
 // 错误处理
 app.on("custom-error", customErrorHandler);

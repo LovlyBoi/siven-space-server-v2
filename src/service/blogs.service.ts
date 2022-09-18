@@ -20,6 +20,7 @@ class BlogsService {
     } catch (e) {
       throw new Error("数据库读取失败");
     }
+    // throw new Error()
     // 取前四张图片
     return handleCardPics(cards);
   };
