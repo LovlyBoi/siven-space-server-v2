@@ -23,6 +23,25 @@ class UploaderController {
     }
     await next();
   };
+
+  markdownUploader: Middleware = async (ctx, next) => {
+    if ((ctx.req as any).files.length >= 1) {
+      const id = (ctx.req as any).files.map((file: File) => file.filename);
+      console.log('markdown', id)
+      ctx.body = {
+        id,
+        msg: "上传成功！",
+      };
+    } else {
+      useEmit(
+        ErrorType.InternalServerError,
+        ctx,
+        new Error("上传失败 未获取到文件"),
+        "上传失败"
+      );
+    }
+    await next();
+  };
 }
 
 export const uploaderController = new UploaderController();

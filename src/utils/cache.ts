@@ -9,6 +9,17 @@ function makeId() {
   return nanoid();
 }
 
+export const useCacheLocation = (path?: string) =>
+  path
+    ? resolve(process.env.CACHE_DIR || "", path)
+    : process.env.CACHE_DIR || "";
+
+export let cacheRootPath: string,
+  cacheImagePath: string,
+  cacheMarkdownPath: string,
+  cacheHtmlPath: string,
+  cahceOutlinePath: string;
+
 // 初始化缓存目录
 export function cacheInit(cacheDir?: string): string {
   cacheDir = cacheDir || process.env.CACHE_DIR || "../";
@@ -20,6 +31,12 @@ export function cacheInit(cacheDir?: string): string {
   for (const subDir of ["html", "markdown", "outline", "image"]) {
     mkdirSync(resolve(cacheDir, subDir), { recursive: true });
   }
+
+  cacheRootPath = useCacheLocation();
+  cacheImagePath = useCacheLocation("./image");
+  cacheMarkdownPath = useCacheLocation("./markdown");
+  cacheHtmlPath = useCacheLocation("./html");
+  cahceOutlinePath = useCacheLocation("./outline");
 
   return cacheDir;
 }
@@ -35,19 +52,12 @@ export async function storeMarkDown(
   markdownString: string | Buffer,
   filename: string
 ): Promise<MarkdownFile> {
-  const markdownDir = resolve(process.env.CACHE_DIR!, "./markdown");
   const id = makeId();
   const file: MarkdownFile = {
     id,
-    location: resolve(markdownDir, id),
+    location: resolve(cacheMarkdownPath, id),
     originName: filename,
   };
-  // try {
-
-  // } catch (e) {
-  //   console.log(e);
-  //   throw new Error("MarkDown文件写入失败");
-  // }
   await writeFile(
     file.location,
     typeof markdownString === "string"
@@ -59,14 +69,12 @@ export async function storeMarkDown(
 
 // 获取解析后的HTML
 export async function getHtmlById(id: string): Promise<ParsedHtml> {
-  const markdownDir = resolve(process.env.CACHE_DIR!, "./markdown");
-
   // 之前解析过了，走缓存
   const cachedParsed = await getParsedFromCache(id);
   if (cachedParsed != null) return cachedParsed;
 
   // 没解析过
-  const mdBuffer = await readFile(resolve(markdownDir, id));
+  const mdBuffer = await readFile(resolve(cacheMarkdownPath, id));
   const parsed = parseMarkDown(mdBuffer);
 
   // 尝试缓存结果，不阻塞正常返回
@@ -77,14 +85,12 @@ export async function getHtmlById(id: string): Promise<ParsedHtml> {
 
 // 判断markdown文件是否存在
 export function isMarkDownExist(id: string) {
-  const markdownDir = resolve(process.env.CACHE_DIR!, "./markdown");
-  return existsSync(resolve(markdownDir, id))
+  return existsSync(resolve(cacheMarkdownPath, id));
 }
 
 async function cacheHtml(id: string, html: string | Buffer) {
-  const htmlDir = resolve(process.env.CACHE_DIR!, "./html");
   try {
-    await writeFile(resolve(htmlDir, id), html);
+    await writeFile(resolve(cacheHtmlPath, id), html);
   } catch (e) {
     console.log(e);
     throw new Error(`缓存 HTML(${id})失败`);
@@ -92,9 +98,8 @@ async function cacheHtml(id: string, html: string | Buffer) {
 }
 
 async function cacheOutline(id: string, outline: Outline) {
-  const outlineDir = resolve(process.env.CACHE_DIR!, "./outline");
   try {
-    await writeFile(resolve(outlineDir, id), JSON.stringify(outline));
+    await writeFile(resolve(cahceOutlinePath, id), JSON.stringify(outline));
   } catch (e) {
     console.log(e);
     throw new Error(`缓存文章大纲(${id})失败`);
@@ -103,26 +108,26 @@ async function cacheOutline(id: string, outline: Outline) {
 
 // 从缓存里读取
 async function getParsedFromCache(id: string): Promise<ParsedHtml | null> {
-  const htmlDir = resolve(process.env.CACHE_DIR!, "./html");
-  const outlineDir = resolve(process.env.CACHE_DIR!, "./outline");
   let html: string | Buffer, outline: Outline;
   // 缓存目录里没有
   if (
-    !existsSync(resolve(htmlDir, id)) ||
-    !existsSync(resolve(outlineDir, id))
+    !existsSync(resolve(cacheHtmlPath, id)) ||
+    !existsSync(resolve(cahceOutlinePath, id))
   ) {
-    return null
+    return null;
   }
   // 从缓存里读
   try {
-    html = await readFile(resolve(htmlDir, id));
+    html = await readFile(resolve(cacheHtmlPath, id));
     html = html.toString();
   } catch (e) {
     console.log(`读取HTML(${id})缓存失败: `, e);
     return null;
   }
   try {
-    outline = JSON.parse((await readFile(resolve(outlineDir, id))).toString());
+    outline = JSON.parse(
+      (await readFile(resolve(cahceOutlinePath, id))).toString()
+    );
   } catch (e) {
     console.log(`读取文章大纲(${id})缓存失败: `, e);
     return null;

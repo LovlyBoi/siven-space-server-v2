@@ -14,8 +14,8 @@ export async function storeBlogs(blog: Blog) {
     author,
     type,
     title,
-    pictures,
     tag: { name: tag_name, color: tag_color },
+    pictures,
     cache_location,
   } = blog;
   return await pool.execute(STORE_BLOGS, [

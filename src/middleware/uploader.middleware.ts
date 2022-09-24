@@ -1,21 +1,32 @@
 import multer from "koa-multer";
-import { nanoid } from 'nanoid'
-import { resolve, extname } from "path";
+import { nanoid } from "nanoid";
+import { extname } from "path";
+import { useCacheLocation } from "../utils/cache";
 
-function makeStorage(destination: string) {
+function makeStorage(
+  destination: string,
+  noExt: boolean = false,
+  size?: number
+) {
   return multer.diskStorage({
     destination: async (req, file, cb) => {
       cb(null, destination);
     },
     filename: async (req, file, cb) => {
       // 生成一个nanoid的文件名
-      const filename = `${nanoid(16)}${extname(file.originalname)}`
+      const filename = noExt
+        ? nanoid(size)
+        : `${nanoid(size)}${extname(file.originalname)}`;
       console.log(filename);
       cb(null, filename);
     },
   });
 }
 
-export const uploaderMiddleware = multer({
-  storage: makeStorage(resolve(process.env.CACHE_DIR!, "./image")),
+export const imageUploaderMiddleware = multer({
+  storage: makeStorage(useCacheLocation("./image"), false, 16),
+}).array("file");
+
+export const markdownUploaderMiddleware = multer({
+  storage: makeStorage(useCacheLocation("./markdown"), true),
 }).array("file");

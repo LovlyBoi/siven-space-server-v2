@@ -10,9 +10,8 @@ import { uploadRouter } from "../router/uploader.router";
 import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
-import { cacheInit } from "../utils/cache";
+import { cacheInit, cacheRootPath, cacheImagePath } from "../utils/cache";
 import { initDataBase } from "../dao/init.dao";
-import { resolve } from "path";
 
 function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
   if (Array.isArray(routers)) {
@@ -30,9 +29,8 @@ const app = new Koa();
 
 // 初始化缓存目录
 cacheInit();
-
-console.log(process.env.CACHE_DIR)
-app.use(KoaStatic(resolve(process.env.CACHE_DIR!, './image')))
+console.log("缓存路径：", cacheRootPath);
+app.use(KoaStatic(cacheImagePath));
 
 // 初始化数据库
 initDataBase();
