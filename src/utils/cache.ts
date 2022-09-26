@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
+import { readFile, writeFile, unlink } from "fs/promises";
 import { resolve, isAbsolute } from "path";
 import { parseMarkDown } from "./markdown";
 import type { Outline, ParsedHtml } from "../types";
@@ -41,12 +41,14 @@ export function cacheInit(cacheDir?: string): string {
   return cacheDir;
 }
 
+// ! 废弃，上传markdown直接使用multer
 export interface MarkdownFile {
   id: string;
   location: string;
   originName: string;
 }
 
+// ! 废弃，上传markdown直接使用multer
 // 存储md文件，接受md文件，返回 nanoid，文件地址，文件名
 export async function storeMarkDown(
   markdownString: string | Buffer,
@@ -81,6 +83,34 @@ export async function getHtmlById(id: string): Promise<ParsedHtml> {
   cacheHtml(id, parsed.html);
   cacheOutline(id, parsed.outline);
   return parsed;
+}
+
+// 移除Markdown缓存
+export async function removeMarkdownCache(id: string) {
+  let success = true;
+  // 删除 markdown
+  try {
+    await unlink(resolve(cacheMarkdownPath, id));
+  } catch (e) {
+    success = false;
+  }
+  // 删除 html和outline
+  try {
+    await unlink(resolve(cacheHtmlPath, id));
+    await unlink(resolve(cahceOutlinePath, id));
+  } catch (e) {}
+  return success;
+}
+
+// 移除Image缓存
+export async function removeImageCahce(filename: string) {
+  let success = true;
+  try {
+    await unlink(resolve(cacheImagePath, filename));
+  } catch (e) {
+    success = false;
+  }
+  return success;
 }
 
 // 判断markdown文件是否存在

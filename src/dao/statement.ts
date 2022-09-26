@@ -13,8 +13,6 @@ const INIT_DATABASE = `CREATE TABLE IF NOT EXISTS blogs (
   tag_name varchar(30),
   -- tag 颜色
   tag_color varchar(30),
-  -- 存储位置
-  cache_location varchar(255),
   -- 发布时间
   publish_date timestamp DEFAULT CURRENT_TIMESTAMP,
   -- 更新时间
@@ -29,9 +27,8 @@ const STORE_BLOGS = `INSERT INTO blogs (
   title,
   pics,
   tag_name,
-  tag_color,
-  cache_location
-) VALUES( ?, ?, ?, ?, ?, ?, ?, ? );`;
+  tag_color
+) VALUES ( ?, ?, ?, ?, ?, ?, ? );`;
 
 const GET_BLOGS_BY_TYPE = `SELECT
 nanoid as id,
@@ -40,7 +37,6 @@ type,
 title,
 pics as pictures,
 JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
-cache_location as location,
 publish_date as publishDate,
 update_date as updateDate
 FROM
@@ -55,7 +51,6 @@ type,
 title,
 pics as pictures,
 JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
-cache_location as location,
 publish_date as publishDate,
 update_date as updateDate
 FROM
@@ -68,7 +63,6 @@ type,
 title,
 pics as pictures,
 JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
-cache_location as location,
 publish_date as publishDate,
 update_date as updateDate
 FROM

@@ -9,24 +9,15 @@ import type { Blog, BlogForJSON, BlogType } from "../types";
 
 // 存储 blog
 export async function storeBlogs(blog: Blog) {
-  const {
-    id,
-    author,
-    type,
-    title,
-    tag: { name: tag_name, color: tag_color },
-    pictures,
-    cache_location,
-  } = blog;
+  const { id, author, type, title, tag, pictures } = blog;
   return await pool.execute(STORE_BLOGS, [
     id,
     author,
     type,
     title,
     pictures,
-    tag_name,
-    tag_color,
-    cache_location,
+    tag.name,
+    tag.color,
   ]);
 }
 
@@ -38,7 +29,7 @@ function Blog2BlogForJSON(blogs: Blog[]): BlogForJSON[] {
       author: blog.author,
       type: blog.type,
       title: blog.title,
-      pictures: blog.pictures.split(" "),
+      pictures: blog.pictures ? blog.pictures.split(" ") : [],
       tag: { name: blog.tag.name, color: blog.tag.color },
       publishDate: blog.publishDate!,
       updateDate: blog.updateDate!,

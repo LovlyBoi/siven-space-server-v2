@@ -1,9 +1,14 @@
 import { readFile } from "fs/promises";
 import { resolve } from "path";
-import { getAllBlogs, getBlogsByType, getBlogById } from "../dao/blogs.dao";
+import {
+  getAllBlogs,
+  getBlogsByType,
+  getBlogById,
+  storeBlogs,
+} from "../dao/blogs.dao";
 import { getHtmlById } from "../utils/cache";
 import { BlogType } from "../types";
-import type { BlogForJSON, ParsedHtmlForJSON } from "../types";
+import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
 
 class BlogsService {
   // 获取全部博客
@@ -18,9 +23,9 @@ class BlogsService {
     try {
       cards = await getBlogsByType(BlogType.note);
     } catch (e) {
+      console.log(e)
       throw new Error("数据库读取失败");
     }
-    // throw new Error()
     // 取前四张图片
     return handleCardPics(cards);
   };
@@ -40,6 +45,14 @@ class BlogsService {
     const blogInfo = await getBlogById(id);
     const parsed = await getHtmlById(id);
     return { parsed, ...blogInfo };
+  };
+  // 发布博客
+  publishBlog = async (blog: Blog) => {
+    const blogInfo = await getBlogById(blog.id);
+    if (blogInfo && blogInfo.id) {
+      throw new Error('这篇博客已经发布过了哦')
+    }
+    return storeBlogs(blog)
   };
 }
 

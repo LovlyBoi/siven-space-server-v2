@@ -9,7 +9,6 @@ interface Blog {
     name: string;
     color: TagColor;
   };
-  cache_location: string;
   publishDate?: string;
   updateDate?: string;
 }

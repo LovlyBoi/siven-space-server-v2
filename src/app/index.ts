@@ -7,6 +7,7 @@ import CORS from "@koa/cors";
 import bodyParser from "koa-bodyparser";
 import { blogsRouter } from "../router/blogs.router";
 import { uploadRouter } from "../router/uploader.router";
+import { imageRouter } from "../router/image.router"
 import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
@@ -30,7 +31,7 @@ const app = new Koa();
 // 初始化缓存目录
 cacheInit();
 console.log("缓存路径：", cacheRootPath);
-app.use(KoaStatic(cacheImagePath));
+// app.use(KoaStatic(cacheImagePath));
 
 // 初始化数据库
 initDataBase();
@@ -42,7 +43,7 @@ app.use(CORS());
 app.use(bodyParser());
 
 // 路由
-useRouter(app, [blogsRouter, uploadRouter]);
+useRouter(app, [blogsRouter, uploadRouter, imageRouter]);
 
 // 错误处理
 app.on("custom-error", customErrorHandler);
