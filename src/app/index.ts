@@ -2,16 +2,15 @@ import "./config";
 import "./database";
 import Koa from "koa";
 import KoaRouter from "koa-router";
-import KoaStatic from "koa-static";
 import CORS from "@koa/cors";
 import bodyParser from "koa-bodyparser";
 import { blogsRouter } from "../router/blogs.router";
 import { uploadRouter } from "../router/uploader.router";
-import { imageRouter } from "../router/image.router"
+import { imageRouter } from "../router/image.router";
 import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
-import { cacheInit, cacheRootPath, cacheImagePath } from "../utils/cache";
+import { cacheInit, cacheRootPath } from "../utils/cache";
 import { initDataBase } from "../dao/init.dao";
 
 function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
@@ -31,13 +30,39 @@ const app = new Koa();
 // 初始化缓存目录
 cacheInit();
 console.log("缓存路径：", cacheRootPath);
-// app.use(KoaStatic(cacheImagePath));
 
 // 初始化数据库
 initDataBase();
 
 // 解决跨域
-app.use(CORS());
+const whiteList = [
+  "http://192.168.31.17",
+  "https://192.168.31.17",
+  "http://127.0.0.1",
+  "https://127.0.0.1",
+  "http://localhost",
+  "https://localhost",
+  "http://123.57.238.32",
+  "https://123.57.238.32",
+  "http://siven.cc",
+  "https://siven.cc",
+];
+
+app.use(
+  CORS({
+    origin: (ctx) => {
+      const origin = ctx.headers.origin;
+      for (const whiteOrigin of whiteList) {
+        if (origin?.startsWith(whiteOrigin)) {
+          return origin;
+        } else {
+          return "";
+        }
+      }
+      return "";
+    },
+  })
+);
 
 // 解析请求体
 app.use(bodyParser());

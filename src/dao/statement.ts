@@ -30,31 +30,39 @@ const STORE_BLOGS = `INSERT INTO blogs (
   tag_color
 ) VALUES ( ?, ?, ?, ?, ?, ?, ? );`;
 
-const GET_BLOGS_BY_TYPE = `SELECT
-nanoid as id,
-author,
-type,
-title,
-pics as pictures,
-JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
-publish_date as publishDate,
-update_date as updateDate
+const GET_BLOGS_BY_TYPE = `
+/* 按 type 读取 */
+SELECT
+  nanoid as id,
+  author,
+  type,
+  title,
+  pics as pictures,
+  JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
+  publish_date as publishDate,
+  update_date as updateDate
 FROM
-blogs
+  blogs
 WHERE
-blogs.type = ?;`;
+  blogs.type = ?
+ORDER BY update_date desc
+LIMIT ? OFFSET ?;`;
 
-const GET_ALL_BLOGS = `SELECT
-nanoid as id,
-author,
-type,
-title,
-pics as pictures,
-JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
-publish_date as publishDate,
-update_date as updateDate
+const GET_ALL_BLOGS = `
+/* 读取全部 */
+SELECT
+  nanoid as id,
+  author,
+  type,
+  title,
+  pics as pictures,
+  JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
+  publish_date as publishDate,
+  update_date as updateDate
 FROM
-blogs;`;
+  blogs
+ORDER BY update_date DESC
+LIMIT ? OFFSET ?;`;
 
 const GET_BLOG_BY_ID = `SELECT
 nanoid as id,

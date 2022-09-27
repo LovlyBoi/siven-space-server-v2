@@ -39,10 +39,18 @@ function Blog2BlogForJSON(blogs: Blog[]): BlogForJSON[] {
 }
 
 // 通过 type 获取 blog
-export async function getBlogsByType(type: BlogType): Promise<BlogForJSON[]> {
+export async function getBlogsByType(
+  type: BlogType,
+  pageSize: number,
+  pageNumber: number
+): Promise<BlogForJSON[]> {
   let result;
   try {
-    result = await pool.execute(GET_BLOGS_BY_TYPE, [type]);
+    result = await pool.execute(GET_BLOGS_BY_TYPE, [
+      type,
+      pageSize.toString(),
+      ((pageNumber - 1) * pageSize).toString(),
+    ]);
   } catch (e) {
     console.log("获取blog失败", e);
     throw e;
@@ -51,11 +59,17 @@ export async function getBlogsByType(type: BlogType): Promise<BlogForJSON[]> {
   return Blog2BlogForJSON(result);
 }
 
-// 通过 type 获取 blog
-export async function getAllBlogs(): Promise<BlogForJSON[]> {
+// 获取全部 blog
+export async function getAllBlogs(
+  pageSize: number,
+  pageNumber: number
+): Promise<BlogForJSON[]> {
   let result;
   try {
-    result = await pool.execute(GET_ALL_BLOGS);
+    result = await pool.execute(GET_ALL_BLOGS, [
+      pageSize,
+      (pageNumber - 1) * pageSize,
+    ]);
   } catch (e) {
     console.log("获取blog失败", e);
     throw e;

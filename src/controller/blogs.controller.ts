@@ -16,14 +16,18 @@ class BlogController {
   // 根据类型进行分类
   getBlogs: Middleware = async (ctx, next) => {
     const type = ctx.query.type;
+    let ps = parseInt(ctx.query.ps as string);
+    let pn = parseInt(ctx.query.pn as string);
+    ps = ps == null || Number.isNaN(ps) ? 10 : ps;
+    pn = pn == null || Number.isNaN(pn) ? 1 : pn;
     let cards: BlogForJSON[] | string | Buffer;
     try {
       if (type === "note") {
-        cards = await getNoteBlogs();
+        cards = await getNoteBlogs(ps, pn);
       } else if (type === "essay") {
-        cards = await getEssayBlogs();
+        cards = await getEssayBlogs(ps, pn);
       } else {
-        cards = await getAllBlogs();
+        cards = await getAllBlogs(ps, pn);
       }
     } catch (e: unknown) {
       const err = e as Error;
@@ -82,9 +86,9 @@ function validateBlog(blog: { [k: string]: any }): {
   msg: string;
 } {
   let ret = { success: false, msg: "" };
-  const requireKey = ["id", "author", "type", "title"]
+  const requireKey = ["id", "author", "type", "title"];
   for (let i = 0; i < requireKey.length; i++) {
-    const key = requireKey[i]
+    const key = requireKey[i];
     if (!blog[key]) {
       ret.msg = `blog.${key} 字段是必须的`;
       return ret;

@@ -12,16 +12,16 @@ import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
 
 class BlogsService {
   // 获取全部博客
-  getAllBlogs = async () => {
+  getAllBlogs = async (pageSize: number, pageNumber: number) => {
     // 到时候将fs操作改为从服务器获取
     const cards = await readFile(resolve(__dirname, "./cards.json"));
     return cards;
   };
   // 获取笔记类型博客
-  getNoteBlogs = async () => {
+  getNoteBlogs = async (pageSize: number, pageNumber: number) => {
     let cards: BlogForJSON[];
     try {
-      cards = await getBlogsByType(BlogType.note);
+      cards = await getBlogsByType(BlogType.note, pageSize, pageNumber);
     } catch (e) {
       console.log(e)
       throw new Error("数据库读取失败");
@@ -30,10 +30,10 @@ class BlogsService {
     return handleCardPics(cards);
   };
   // 获取随笔类型博客
-  getEssayBlogs = async () => {
+  getEssayBlogs = async (pageSize: number, pageNumber: number) => {
     let cards: BlogForJSON[];
     try {
-      cards = await getBlogsByType(BlogType.essay);
+      cards = await getBlogsByType(BlogType.essay, pageSize, pageNumber);
     } catch (e) {
       throw new Error("数据库读取失败");
     }
