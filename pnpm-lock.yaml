@@ -30,7 +30,6 @@ specifiers:
   nanoid: 3.3.4
   nodemon: ^2.0.19
   sharp: ^0.31.0
-  siven-space-service-v2: 'link:'
   ts-node: ^10.9.1
   typescript: ^4.8.2
 
@@ -47,7 +46,6 @@ dependencies:
   mysql2: 2.3.3
   nanoid: 3.3.4
   sharp: 0.31.0
-  siven-space-service-v2: 'link:'
 
 devDependencies:
   '@commitlint/cli': 17.1.2

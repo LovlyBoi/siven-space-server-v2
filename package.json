@@ -8,7 +8,8 @@
     "prepare": "husky install && husky add .husky/commit-msg 'pnpm commitlint --edit $1'",
     "commit": "git-cz",
     "dev": "nodemon --exec \"ts-node\" main.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "build:dep": "tsc && cp ./package.json ./siven-space-server-v2/package.json"
   },
   "config": {
     "commitizen": {
@@ -30,8 +31,7 @@
     "marked": "^4.1.0",
     "mysql2": "^2.3.3",
     "nanoid": "3.3.4",
-    "sharp": "^0.31.0",
-    "siven-space-service-v2": "link:"
+    "sharp": "^0.31.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

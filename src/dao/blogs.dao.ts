@@ -4,6 +4,7 @@ import {
   GET_BLOGS_BY_TYPE,
   GET_ALL_BLOGS,
   GET_BLOG_BY_ID,
+  DELETE_BLOG_BY_ID,
 } from "./statement";
 import type { Blog, BlogForJSON, BlogType } from "../types";
 
@@ -67,8 +68,8 @@ export async function getAllBlogs(
   let result;
   try {
     result = await pool.execute(GET_ALL_BLOGS, [
-      pageSize,
-      (pageNumber - 1) * pageSize,
+      pageSize.toString(),
+      ((pageNumber - 1) * pageSize).toString(),
     ]);
   } catch (e) {
     console.log("获取blog失败", e);
@@ -82,4 +83,10 @@ export async function getAllBlogs(
 export async function getBlogById(id: string): Promise<BlogForJSON> {
   const result = await pool.execute(GET_BLOG_BY_ID, [id]);
   return (result[0] as unknown[])[0] as BlogForJSON;
+}
+
+// 删除对应博客
+export async function deleteBlogById(id: string) {
+  const result = await pool.execute(DELETE_BLOG_BY_ID, [id]);
+  return result[0];
 }

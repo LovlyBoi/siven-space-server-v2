@@ -55,8 +55,6 @@ app.use(
       for (const whiteOrigin of whiteList) {
         if (origin?.startsWith(whiteOrigin)) {
           return origin;
-        } else {
-          return "";
         }
       }
       return "";

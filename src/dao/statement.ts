@@ -1,4 +1,6 @@
-const INIT_DATABASE = `CREATE TABLE IF NOT EXISTS blogs (
+const INIT_DATABASE = `
+/* 博客 */
+CREATE TABLE IF NOT EXISTS blogs (
   -- 博客id，这个是逻辑上的唯一标识
   nanoid varchar(32) PRIMARY KEY NOT NULL,
   -- 作者
@@ -8,8 +10,8 @@ const INIT_DATABASE = `CREATE TABLE IF NOT EXISTS blogs (
   -- 文章标题
   title varchar(80) NOT NULL,
   -- 文章封面 url
-  pics varchar(1020) NOT NULL,
-  -- tag 名
+  pics varchar(1020),
+  -- tag 名 'yellow' | 'pink' | 'green' | 'indigo'
   tag_name varchar(30),
   -- tag 颜色
   tag_color varchar(30),
@@ -17,7 +19,10 @@ const INIT_DATABASE = `CREATE TABLE IF NOT EXISTS blogs (
   publish_date timestamp DEFAULT CURRENT_TIMESTAMP,
   -- 更新时间
   update_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  index type_index (type)
+  -- 删除字段
+  unuse int DEFAULT 0,
+  index type_index (type),
+  index unuse_index (unuse)
 );`;
 
 const STORE_BLOGS = `INSERT INTO blogs (
@@ -44,9 +49,11 @@ SELECT
 FROM
   blogs
 WHERE
-  blogs.type = ?
-ORDER BY update_date desc
-LIMIT ? OFFSET ?;`;
+  blogs.type = ? AND blogs.unuse = 0
+ORDER BY
+  update_date DESC
+LIMIT
+  ? OFFSET ?;`;
 
 const GET_ALL_BLOGS = `
 /* 读取全部 */
@@ -61,22 +68,36 @@ SELECT
   update_date as updateDate
 FROM
   blogs
-ORDER BY update_date DESC
-LIMIT ? OFFSET ?;`;
+WHERE blogs.unuse = 0
+ORDER BY
+  update_date DESC
+LIMIT
+  ? OFFSET ?;`;
 
-const GET_BLOG_BY_ID = `SELECT
-nanoid as id,
-author,
-type,
-title,
-pics as pictures,
-JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
-publish_date as publishDate,
-update_date as updateDate
+const GET_BLOG_BY_ID = `
+/* 按 id 读取 */
+SELECT
+  nanoid as id,
+  author,
+  type,
+  title,
+  pics as pictures,
+  JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
+  publish_date as publishDate,
+  update_date as updateDate
 FROM
-blogs
+  blogs
 WHERE
-blogs.nanoid = ?;`;
+  blogs.nanoid = ? AND blogs.unuse = 0;`;
+
+const DELETE_BLOG_BY_ID = `
+/* 删除博客 */
+UPDATE
+  blogs
+SET
+  unuse = 1
+WHERE
+  blogs.nanoid = ?;`
 
 export {
   INIT_DATABASE,
@@ -84,4 +105,5 @@ export {
   GET_BLOGS_BY_TYPE,
   GET_ALL_BLOGS,
   GET_BLOG_BY_ID,
+  DELETE_BLOG_BY_ID,
 };

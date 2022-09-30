@@ -10,6 +10,7 @@ const {
   getNoteBlogs,
   getBlogById: getBlogByIdService,
   publishBlog: publishBlogService,
+  deleteBlog: deleteBlogService,
 } = blogService;
 
 class BlogController {
@@ -57,7 +58,6 @@ class BlogController {
     ctx.body = data;
     await next();
   };
-
   // 发布博客
   publishBlog: Middleware = async (ctx, next) => {
     const { success, msg } = validateBlog(ctx.request.body);
@@ -79,6 +79,22 @@ class BlogController {
     ctx.body = "发布成功";
     await next();
   };
+  // 删除博客
+  deleteBlog: Middleware = async (ctx, next) => {
+    const id = ctx.params.id as string;
+    try {
+      await deleteBlogService(id)
+    } catch (e) {
+      return useEmit(
+        ErrorType.InternalServerError,
+        ctx,
+        e as Error,
+        '删除失败',
+      );
+    }
+    ctx.body = '删除成功'
+    await next();
+  }
 }
 
 function validateBlog(blog: { [k: string]: any }): {

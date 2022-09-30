@@ -5,6 +5,7 @@ import {
   getBlogsByType,
   getBlogById,
   storeBlogs,
+  deleteBlogById,
 } from "../dao/blogs.dao";
 import { getHtmlById } from "../utils/cache";
 import { BlogType } from "../types";
@@ -13,9 +14,15 @@ import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
 class BlogsService {
   // 获取全部博客
   getAllBlogs = async (pageSize: number, pageNumber: number) => {
-    // 到时候将fs操作改为从服务器获取
-    const cards = await readFile(resolve(__dirname, "./cards.json"));
-    return cards;
+    let cards: BlogForJSON[];
+    try {
+      cards = await getAllBlogs(pageSize, pageNumber);
+    } catch (e) {
+      console.log(e);
+      throw new Error("数据库读取失败");
+    }
+    // 取前四张图片
+    return handleCardPics(cards);
   };
   // 获取笔记类型博客
   getNoteBlogs = async (pageSize: number, pageNumber: number) => {
@@ -23,7 +30,7 @@ class BlogsService {
     try {
       cards = await getBlogsByType(BlogType.note, pageSize, pageNumber);
     } catch (e) {
-      console.log(e)
+      console.log(e);
       throw new Error("数据库读取失败");
     }
     // 取前四张图片
@@ -50,10 +57,12 @@ class BlogsService {
   publishBlog = async (blog: Blog) => {
     const blogInfo = await getBlogById(blog.id);
     if (blogInfo && blogInfo.id) {
-      throw new Error('这篇博客已经发布过了哦')
+      throw new Error("这篇博客已经发布过了哦");
     }
-    return storeBlogs(blog)
+    return storeBlogs(blog);
   };
+  // 删除博客
+  deleteBlog = async (id: string) => await deleteBlogById(id);
 }
 
 function handleCardPics(cards: BlogForJSON[], limit: number = 4) {

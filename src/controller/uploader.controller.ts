@@ -15,6 +15,7 @@ class UploaderController {
         (file: File) =>
           `${process.env.APP_HOST}:${process.env.APP_PORT}/image/${file.filename}`
       );
+      console.log(url)
       ctx.body = {
         url,
         msg: "上传成功！",
