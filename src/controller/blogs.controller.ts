@@ -9,6 +9,8 @@ const {
   getEssayBlogs,
   getNoteBlogs,
   getBlogById: getBlogByIdService,
+  getBlogMarkdown: getBlogMarkdownService,
+  editBlogMarkdown: editBlogMarkdownService,
   publishBlog: publishBlogService,
   deleteBlog: deleteBlogService,
 } = blogService;
@@ -41,22 +43,60 @@ class BlogController {
   // 获取博客正文
   getBlogById: Middleware = async (ctx, next) => {
     const id = ctx.params.id as string;
-    console.log(ctx.params.id);
+    const notFound = () =>
+      useEmit(ErrorType.NotFound, ctx, new Error("请求地址不存在"));
+    const serverError = () =>
+      useEmit(ErrorType.InternalServerError, ctx, new Error("获取博客失败"));
     if (!isMarkDownExist(id)) {
-      return useEmit(ErrorType.NotFound, ctx, new Error("请求地址不存在"));
+      return notFound();
     }
-    let data: ParsedHtmlForJSON;
+    // 根据query参数指定返回的是解析好的还是markdown原文
+    const type = ctx.query.type === "markdown" ? "markdown" : "html";
+    if (type === "html") {
+      let data: ParsedHtmlForJSON;
+      try {
+        data = await getBlogByIdService(id);
+      } catch (e) {
+        return serverError();
+      }
+      ctx.body = data;
+    } else {
+      try {
+        const readStream = getBlogMarkdownService(id);
+        if (!readStream) {
+          return notFound();
+        } else {
+          ctx.body = readStream;
+        }
+      } catch (e) {
+        return serverError();
+      }
+    }
+    await next();
+  };
+  // 编辑博客
+  editBlogMarkdown: Middleware = async (ctx, next) => {
+    const id = ctx.params.id as string;
+    const content = ctx.request.body?.content as string | undefined;
+    if (content == null) {
+      return useEmit(
+        ErrorType.BadRequest,
+        ctx,
+        new Error("请求没有content字段"),
+        "content字段是必须的"
+      );
+    }
     try {
-      data = await getBlogByIdService(id);
+      await editBlogMarkdownService(id, content);
+      ctx.body = "修改成功";
     } catch (e) {
       return useEmit(
         ErrorType.InternalServerError,
         ctx,
-        new Error("获取博客失败")
+        new Error("修改失败"),
+        "修改失败"
       );
     }
-    ctx.body = data;
-    await next();
   };
   // 发布博客
   publishBlog: Middleware = async (ctx, next) => {
@@ -83,18 +123,18 @@ class BlogController {
   deleteBlog: Middleware = async (ctx, next) => {
     const id = ctx.params.id as string;
     try {
-      await deleteBlogService(id)
+      await deleteBlogService(id);
     } catch (e) {
       return useEmit(
         ErrorType.InternalServerError,
         ctx,
         e as Error,
-        '删除失败',
+        "删除失败"
       );
     }
-    ctx.body = '删除成功'
+    ctx.body = "删除成功";
     await next();
-  }
+  };
 }
 
 function validateBlog(blog: { [k: string]: any }): {

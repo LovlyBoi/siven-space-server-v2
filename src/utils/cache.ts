@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync, createReadStream } from "fs";
 import { readFile, writeFile, unlink } from "fs/promises";
 import { resolve, isAbsolute } from "path";
 import { parseMarkDown } from "./markdown";
@@ -116,6 +116,27 @@ export async function removeImageCahce(filename: string) {
 // 判断markdown文件是否存在
 export function isMarkDownExist(id: string) {
   return existsSync(resolve(cacheMarkdownPath, id));
+}
+
+// 返回markdown原文（供编辑文件消费）
+export function getMarkdown(id: string) {
+  const exist = isMarkDownExist(id);
+  return exist ? createReadStream(resolve(cacheMarkdownPath, id)) : null;
+}
+
+// 修改mardown原文（供编辑文件消费）
+export async function editMarkdown(id: string, content: string | Buffer) {
+  const exist = isMarkDownExist(id);
+  const filePath = resolve(cacheMarkdownPath, id);
+  if (!exist) return false;
+  return writeFile(filePath, content);
+}
+
+// 移除markdown对应的缓存文件（html、outline）
+export function removeCache(id: string) {
+  existsSync(resolve(cacheHtmlPath, id)) && unlink(resolve(cacheHtmlPath, id));
+  existsSync(resolve(cahceOutlinePath, id)) &&
+    unlink(resolve(cahceOutlinePath, id));
 }
 
 async function cacheHtml(id: string, html: string | Buffer) {

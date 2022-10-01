@@ -1,5 +1,3 @@
-import { readFile } from "fs/promises";
-import { resolve } from "path";
 import {
   getAllBlogs,
   getBlogsByType,
@@ -7,7 +5,12 @@ import {
   storeBlogs,
   deleteBlogById,
 } from "../dao/blogs.dao";
-import { getHtmlById } from "../utils/cache";
+import {
+  getHtmlById,
+  getMarkdown,
+  editMarkdown,
+  removeCache,
+} from "../utils/cache";
 import { BlogType } from "../types";
 import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
 
@@ -52,6 +55,15 @@ class BlogsService {
     const blogInfo = await getBlogById(id);
     const parsed = await getHtmlById(id);
     return { parsed, ...blogInfo };
+  };
+  // 拿到博客markdown原文（可读流）
+  getBlogMarkdown = (id: string) => getMarkdown(id);
+  // 编辑博客
+  editBlogMarkdown = async (id: string, content: string | Buffer) => {
+    await editMarkdown(id, content);
+    try {
+      removeCache(id);
+    } catch (e) {}
   };
   // 发布博客
   publishBlog = async (blog: Blog) => {
