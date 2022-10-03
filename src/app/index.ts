@@ -1,14 +1,87 @@
-import Koa from 'koa'
-import CORS from '@koa/cors'
-import bodyParser from 'koa-bodyparser'
-import { blogsRouter } from '../router/blogs.router'
+import "./config";
+import "./database";
+import Koa from "koa";
+import KoaRouter from "koa-router";
+import CORS from "@koa/cors";
+import bodyParser from "koa-bodyparser";
+import { blogsRouter } from "../router/blogs.router";
+import { uploadRouter } from "../router/uploader.router";
+import { imageRouter } from "../router/image.router";
+import { customErrorHandler, defaultErrorHandler } from "./errHandler";
+import { colorfulLog } from "../utils/colorfulLog";
+import { network as ip } from "../utils/getIp";
+import { cacheInit, cacheRootPath } from "../utils/cache";
+import { initDataBase } from "../dao/init.dao";
 
-const app = new Koa()
+function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
+  if (Array.isArray(routers)) {
+    for (const router of routers) {
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+    }
+  } else {
+    app.use(routers.routes());
+    app.use(routers.allowedMethods());
+  }
+}
 
-app.use(CORS())
-app.use(bodyParser())
+const app = new Koa();
 
-app.use(blogsRouter.routes())
-app.use(blogsRouter.allowedMethods())
+// 初始化缓存目录
+cacheInit();
+console.log("缓存路径：", cacheRootPath);
 
-export default app
+// 初始化数据库
+initDataBase();
+
+// 解决跨域
+const whiteList = [
+  "http://192.168.31.17",
+  "https://192.168.31.17",
+  "http://127.0.0.1",
+  "https://127.0.0.1",
+  "http://localhost",
+  "https://localhost",
+  "http://123.57.238.32",
+  "https://123.57.238.32",
+  "http://siven.cc",
+  "https://siven.cc",
+];
+
+app.use(
+  CORS({
+    origin: (ctx) => {
+      const origin = ctx.headers.origin;
+      for (const whiteOrigin of whiteList) {
+        if (origin?.startsWith(whiteOrigin)) {
+          return origin;
+        }
+      }
+      return "";
+    },
+  })
+);
+
+// 解析请求体
+app.use(bodyParser());
+
+// 路由
+useRouter(app, [blogsRouter, uploadRouter, imageRouter]);
+
+// 错误处理
+app.on("custom-error", customErrorHandler);
+app.on("error", defaultErrorHandler);
+
+// 启动打印
+export const startLog = () => {
+  colorfulLog("yellow", `\n  ${process.env.APP_NAME}`);
+  colorfulLog("white", " is running in\n");
+  colorfulLog("green", "    ➜  ");
+  colorfulLog("white", "local: ");
+  colorfulLog("blue", `http://${ip.local}:${process.env.APP_PORT}\n`);
+  colorfulLog("green", "    ➜  ");
+  colorfulLog("white", "network: ");
+  colorfulLog("blue", `http://${ip.network}:${process.env.APP_PORT}\n\n`);
+};
+
+export default app;

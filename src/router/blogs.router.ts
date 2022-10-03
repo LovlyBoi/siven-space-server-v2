@@ -1,17 +1,19 @@
 import KoaRouter from "koa-router";
-import { blogController } from "../controller/blogs.contrroller";
+import { blogController } from "../controller/blogs.controller";
 
-const { getBlogs } = blogController;
+const { getBlogs, getBlogById, publishBlog, deleteBlog, editBlogMarkdown } =
+  blogController;
 
 const blogsRouter = new KoaRouter({ prefix: "/blogs" });
 
-// blogsRouter.get("/", async (ctx, next) => {
-  // const cards = await fs.readFile(resolve(__dirname, "./cards.json"));
-  // ctx.type = "application/json";
-  // ctx.body = cards.toString();
-  // await next();
-// });
-
 blogsRouter.get("/", getBlogs);
+
+blogsRouter.get("/:id", getBlogById);
+
+blogsRouter.delete("/:id", deleteBlog);
+
+blogsRouter.post("/edit/:id", editBlogMarkdown);
+
+blogsRouter.post("/publish", publishBlog);
 
 export { blogsRouter };

@@ -5,7 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec \"ts-node\" main.ts"
+    "prepare": "husky install && husky add .husky/commit-msg 'pnpm commitlint --edit $1'",
+    "commit": "git-cz",
+    "dev": "nodemon --exec \"ts-node\" main.ts",
+    "build": "tsc",
+    "build:dep": "tsc && cp ./package.json ./siven-space-server-v2/package.json"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
   },
   "keywords": [],
   "author": "",
@@ -13,17 +22,34 @@
   "dependencies": {
     "@koa/cors": "^3.4.1",
     "dotenv": "^16.0.2",
+    "highlight.js": "^11.6.0",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
+    "koa-multer": "^1.0.2",
     "koa-router": "^12.0.0",
-    "mysql2": "^2.3.3"
+    "koa-static": "^5.0.0",
+    "marked": "^4.1.0",
+    "mysql2": "^2.3.3",
+    "nanoid": "3.3.4",
+    "sharp": "^0.31.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.1.2",
+    "@commitlint/config-conventional": "^17.1.0",
+    "@commitlint/cz-commitlint": "^17.1.2",
+    "@commitlint/types": "^17.0.0",
     "@types/koa": "^2.13.5",
     "@types/koa-bodyparser": "^4.3.7",
+    "@types/koa-multer": "^1.0.1",
     "@types/koa-router": "^7.4.4",
+    "@types/koa-static": "^4.0.2",
     "@types/koa__cors": "^3.3.0",
+    "@types/marked": "^4.0.6",
     "@types/node": "^18.7.14",
+    "@types/sharp": "^0.31.0",
+    "commitizen": "^4.2.5",
+    "husky": "^8.0.1",
+    "inquirer": "8",
     "nodemon": "^2.0.19",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.2"
