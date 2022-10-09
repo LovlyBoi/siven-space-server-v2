@@ -13,6 +13,7 @@ import {
 } from "../utils/cache";
 import { BlogType } from "../types";
 import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
+import { logger } from "../utils/log";
 
 class BlogsService {
   // 获取全部博客
@@ -21,7 +22,8 @@ class BlogsService {
     try {
       cards = await getAllBlogs(pageSize, pageNumber);
     } catch (e) {
-      console.log(e);
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
       throw new Error("数据库读取失败");
     }
     // 取前四张图片
@@ -33,7 +35,8 @@ class BlogsService {
     try {
       cards = await getBlogsByType(BlogType.note, pageSize, pageNumber);
     } catch (e) {
-      console.log(e);
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
       throw new Error("数据库读取失败");
     }
     // 取前四张图片

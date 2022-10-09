@@ -3,6 +3,7 @@ import { useEmit, ErrorType } from "../utils/useErrorEmit";
 import { blogService } from "../service/blogs.service";
 import { isMarkDownExist } from "../utils/cache";
 import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
+import { logger } from "../utils/log";
 
 const {
   getAllBlogs,
@@ -105,7 +106,7 @@ class BlogController {
       return useEmit(ErrorType.BadRequest, ctx, new Error("请求参数错误"), msg);
     }
     const blogData = ctx.request.body as Blog;
-    console.log(blogData);
+    logger.info({ msg: '发布博客', blogData })
     try {
       await publishBlogService(blogData);
     } catch (e) {

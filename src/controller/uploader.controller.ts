@@ -2,6 +2,7 @@ import { Middleware } from "koa";
 import { File } from "koa-multer";
 import { useEmit, ErrorType } from "../utils/useErrorEmit";
 import { uploaderService } from "../service/uploader.service";
+import { logger } from "../utils/log";
 
 const {
   removeImage: removeImageService,
@@ -15,7 +16,8 @@ class UploaderController {
         (file: File) =>
           `${process.env.APP_HOST}:${process.env.APP_PORT}/image/${file.filename}`
       );
-      console.log(url)
+      // console.log(url)
+      logger.info('图片上传成功' + url.join(' '))
       ctx.body = {
         url,
         msg: "上传成功！",
@@ -34,7 +36,8 @@ class UploaderController {
   markdownUploader: Middleware = async (ctx, next) => {
     if ((ctx.req as any).files.length >= 1) {
       const id = (ctx.req as any).files.map((file: File) => file.filename);
-      console.log("markdown", id);
+      // console.log("markdown", id);
+      logger.info("markdown上传成功" + id.join(' '))
       ctx.body = {
         id,
         msg: "上传成功！",

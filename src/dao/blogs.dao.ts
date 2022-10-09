@@ -7,6 +7,7 @@ import {
   DELETE_BLOG_BY_ID,
 } from "./statement";
 import type { Blog, BlogForJSON, BlogType } from "../types";
+import { logger } from "../utils/log";
 
 // 存储 blog
 export async function storeBlogs(blog: Blog) {
@@ -45,18 +46,14 @@ export async function getBlogsByType(
   pageSize: number,
   pageNumber: number
 ): Promise<BlogForJSON[]> {
-  let result;
-  try {
-    result = await pool.execute(GET_BLOGS_BY_TYPE, [
+  const result = (
+    (await pool.execute(GET_BLOGS_BY_TYPE, [
       type,
       pageSize.toString(),
       ((pageNumber - 1) * pageSize).toString(),
-    ]);
-  } catch (e) {
-    console.log("获取blog失败", e);
-    throw e;
-  }
-  result = result[0] as unknown as Blog[];
+    ])) as unknown[]
+  )[0] as Blog[];
+  // result = result[0] as unknown as Blog[];
   return Blog2BlogForJSON(result);
 }
 
@@ -65,17 +62,13 @@ export async function getAllBlogs(
   pageSize: number,
   pageNumber: number
 ): Promise<BlogForJSON[]> {
-  let result;
-  try {
-    result = await pool.execute(GET_ALL_BLOGS, [
+  const result = (
+    (await pool.execute(GET_ALL_BLOGS, [
       pageSize.toString(),
       ((pageNumber - 1) * pageSize).toString(),
-    ]);
-  } catch (e) {
-    console.log("获取blog失败", e);
-    throw e;
-  }
-  result = result[0] as unknown as Blog[];
+    ])) as unknown[]
+  )[0] as Blog[];
+  // result = result[0] as unknown as Blog[];
   return Blog2BlogForJSON(result);
 }
 
