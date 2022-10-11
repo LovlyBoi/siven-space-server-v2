@@ -1,5 +1,3 @@
-// import { readFile } from "fs/promises";
-// import { resolve } from "path";
 import { marked, Slugger } from "marked";
 
 import hljs from "highlight.js";

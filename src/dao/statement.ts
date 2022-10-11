@@ -99,6 +99,15 @@ SET
 WHERE
   blogs.nanoid = ?;`
 
+const UPDATE_BLOG_UPDATE_DATE = `
+/* 更新博客更新时间 */
+UPDATE
+  blogs
+SET
+  update_date = CURRENT_TIMESTAMP
+WHERE
+  blogs.nanoid = ?;`
+
 export {
   INIT_DATABASE,
   STORE_BLOGS,
@@ -106,4 +115,5 @@ export {
   GET_ALL_BLOGS,
   GET_BLOG_BY_ID,
   DELETE_BLOG_BY_ID,
+  UPDATE_BLOG_UPDATE_DATE
 };

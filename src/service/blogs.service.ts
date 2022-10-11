@@ -4,6 +4,7 @@ import {
   getBlogById,
   storeBlogs,
   deleteBlogById,
+  updateBlogDate,
 } from "../dao/blogs.dao";
 import {
   getHtmlById,
@@ -78,6 +79,8 @@ class BlogsService {
   };
   // 删除博客
   deleteBlog = async (id: string) => await deleteBlogById(id);
+  // 更新博客日期
+  updateBlogDate = async (id: string) => await updateBlogDate(id);
 }
 
 function handleCardPics(cards: BlogForJSON[], limit: number = 4) {

@@ -5,6 +5,7 @@ import {
   GET_ALL_BLOGS,
   GET_BLOG_BY_ID,
   DELETE_BLOG_BY_ID,
+  UPDATE_BLOG_UPDATE_DATE,
 } from "./statement";
 import type { Blog, BlogForJSON, BlogType } from "../types";
 import { logger } from "../utils/log";
@@ -82,4 +83,10 @@ export async function getBlogById(id: string): Promise<BlogForJSON> {
 export async function deleteBlogById(id: string) {
   const result = await pool.execute(DELETE_BLOG_BY_ID, [id]);
   return result[0];
+}
+
+// 更新博客的 update_date
+export async function updateBlogDate(id: string) {
+  const result = await pool.execute(UPDATE_BLOG_UPDATE_DATE, [id]);
+  return result[0]
 }

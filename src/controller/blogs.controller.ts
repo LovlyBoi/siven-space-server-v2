@@ -14,6 +14,7 @@ const {
   editBlogMarkdown: editBlogMarkdownService,
   publishBlog: publishBlogService,
   deleteBlog: deleteBlogService,
+  updateBlogDate: updateBlogDateService,
 } = blogService;
 
 class BlogController {
@@ -89,8 +90,10 @@ class BlogController {
     }
     try {
       await editBlogMarkdownService(id, content);
+      await updateBlogDateService(id);
       ctx.body = "修改成功";
     } catch (e) {
+      console.log(e)
       return useEmit(
         ErrorType.InternalServerError,
         ctx,

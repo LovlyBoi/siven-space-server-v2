@@ -1,5 +1,6 @@
-import winston from "winston";
-import { format } from "winston";
+import winston, { format } from "winston";
+import { writeFile } from "fs/promises";
+import { resolve } from "path";
 
 const consoleTransport: winston.transport[] = [
   new winston.transports.Console({
@@ -36,3 +37,9 @@ export const logger = winston.createLogger({
     format.printf((options) => JSON.stringify(options, null, 2))
   ),
 });
+
+export const clearLog = () => {
+  writeFile(resolve(process.cwd(), "logs/sivenspace_info.log"), '');
+  writeFile(resolve(process.cwd(), "logs/sivenspace_warn.log"), '');
+  writeFile(resolve(process.cwd(), "logs/sivenspace_error.log"), '');
+};
