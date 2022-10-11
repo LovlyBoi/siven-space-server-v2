@@ -17,7 +17,7 @@ function makeStorage(
       const filename = noExt
         ? nanoid(size)
         : `${nanoid(size)}${extname(file.originalname)}`;
-      console.log(filename);
+      // console.log(filename);
       cb(null, filename);
     },
   });

@@ -11,6 +11,7 @@ import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
 import { cacheInit, cacheRootPath } from "../utils/cache";
+import { logger } from "../utils/log";
 import { initDataBase } from "../dao/init.dao";
 
 function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
@@ -29,7 +30,7 @@ const app = new Koa();
 
 // 初始化缓存目录
 cacheInit();
-console.log("缓存路径：", cacheRootPath);
+logger.info('缓存初始化完成，根路径为：' + cacheRootPath);
 
 // 初始化数据库
 initDataBase();
@@ -82,6 +83,7 @@ export const startLog = () => {
   colorfulLog("green", "    ➜  ");
   colorfulLog("white", "network: ");
   colorfulLog("blue", `http://${ip.network}:${process.env.APP_PORT}\n\n`);
+  logger.log("info", `服务启动于${process.env.APP_PORT}端口`);
 };
 
 export default app;

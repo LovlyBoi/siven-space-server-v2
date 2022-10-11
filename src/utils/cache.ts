@@ -4,6 +4,7 @@ import { resolve, isAbsolute } from "path";
 import { parseMarkDown } from "./markdown";
 import type { Outline, ParsedHtml } from "../types";
 import { nanoid } from "nanoid";
+import { logger } from "./log";
 
 function makeId() {
   return nanoid();
@@ -143,7 +144,9 @@ async function cacheHtml(id: string, html: string | Buffer) {
   try {
     await writeFile(resolve(cacheHtmlPath, id), html);
   } catch (e) {
-    console.log(e);
+    const error = e as Error;
+    logger.error({ errorMessage: error.message, errorStack: error.stack });
+    // console.log(e);
     throw new Error(`缓存 HTML(${id})失败`);
   }
 }
@@ -152,7 +155,8 @@ async function cacheOutline(id: string, outline: Outline) {
   try {
     await writeFile(resolve(cahceOutlinePath, id), JSON.stringify(outline));
   } catch (e) {
-    console.log(e);
+    const error = e as Error;
+    logger.error({ errorMessage: error.message, errorStack: error.stack });
     throw new Error(`缓存文章大纲(${id})失败`);
   }
 }
@@ -172,7 +176,12 @@ async function getParsedFromCache(id: string): Promise<ParsedHtml | null> {
     html = await readFile(resolve(cacheHtmlPath, id));
     html = html.toString();
   } catch (e) {
-    console.log(`读取HTML(${id})缓存失败: `, e);
+    const error = e as Error;
+    logger.error({
+      errorMessage: `读取HTML(${id})缓存失败: `,
+      errorStack: error.stack,
+    });
+    // console.log(`读取HTML(${id})缓存失败: `, e);
     return null;
   }
   try {
@@ -180,7 +189,12 @@ async function getParsedFromCache(id: string): Promise<ParsedHtml | null> {
       (await readFile(resolve(cahceOutlinePath, id))).toString()
     );
   } catch (e) {
-    console.log(`读取文章大纲(${id})缓存失败: `, e);
+    const error = e as Error;
+    logger.error({
+      errorMessage: `读取文章大纲(${id})缓存失败: `,
+      errorStack: error.stack,
+    });
+    // console.log(`读取文章大纲(${id})缓存失败: `, e);
     return null;
   }
   return {
