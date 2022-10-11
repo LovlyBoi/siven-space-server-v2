@@ -141,7 +141,7 @@ class BlogController {
   };
 }
 
-function validateBlog(blog: { [k: string]: any }): {
+function validateBlog(blog: Record<string, any>): {
   success: boolean;
   msg: string;
 } {
