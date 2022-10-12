@@ -4,6 +4,7 @@ import {
   GET_BLOGS_BY_TYPE,
   GET_ALL_BLOGS,
   GET_BLOG_BY_ID,
+  UPDATE_BLOG_INFO,
   DELETE_BLOG_BY_ID,
   UPDATE_BLOG_UPDATE_DATE,
 } from "./statement";
@@ -23,6 +24,7 @@ export async function storeBlogs(blog: Blog) {
   ]);
 }
 
+// mysql 数据 --> 应用层数据
 function Blog2BlogForJSON(blogs: Blog[]): BlogForJSON[] {
   const ret: BlogForJSON[] = [];
   for (const blog of blogs) {
@@ -76,6 +78,20 @@ export async function getAllBlogs(
 export async function getBlogById(id: string): Promise<BlogForJSON> {
   const result = await pool.execute(GET_BLOG_BY_ID, [id]);
   return (result[0] as unknown[])[0] as BlogForJSON;
+}
+
+// 编辑博客信息
+export async function updateBlogInfo(newBlogInfo: Blog) {
+  const { id, author, type, title, tag, pictures } = newBlogInfo;
+  return await pool.execute(UPDATE_BLOG_INFO, [
+    author,
+    type,
+    title,
+    pictures,
+    tag.name,
+    tag.color,
+    id,
+  ]);
 }
 
 // 删除对应博客

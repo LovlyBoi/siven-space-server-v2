@@ -3,6 +3,7 @@ import {
   getBlogsByType,
   getBlogById,
   storeBlogs,
+  updateBlogInfo,
   deleteBlogById,
   updateBlogDate,
 } from "../dao/blogs.dao";
@@ -62,13 +63,17 @@ class BlogsService {
   };
   // 拿到博客markdown原文（可读流）
   getBlogMarkdown = (id: string) => getMarkdown(id);
-  // 编辑博客
+  // 编辑博客（文章正文）
   editBlogMarkdown = async (id: string, content: string | Buffer) => {
     await editMarkdown(id, content);
     try {
       removeCache(id);
-    } catch (e) {}
+    } catch (e) {
+      logger.error("移除html或outline缓存失败 " + id);
+    }
   };
+  // 编辑博客（信息）
+  editBlogInfo = async (newBlogInfo: Blog) => updateBlogInfo(newBlogInfo);
   // 发布博客
   publishBlog = async (blog: Blog) => {
     const blogInfo = await getBlogById(blog.id);

@@ -6,14 +6,17 @@ import { logger } from "../utils/log";
 export function customErrorHandler(
   errorType: ErrorType,
   ctx: Context,
-  error: Error,
+  errorForLog: Error,
   msg: string | null
 ) {
   // 如果没有msg，就走koa默认的body
   // 所以如果想要提交自定义的信息到客户端，需要传入第四个参数
   msg && (ctx.body = msg);
   ctx.status = errorType;
-  logger.error({ errorStack: error.stack, errorMessage: error.message });
+  logger.error({
+    errorStack: errorForLog.stack,
+    errorMessage: errorForLog.message,
+  });
 }
 
 // 默认的错误处理

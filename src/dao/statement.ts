@@ -90,6 +90,20 @@ FROM
 WHERE
   blogs.nanoid = ? AND blogs.unuse = 0;`;
 
+const UPDATE_BLOG_INFO = `
+/* 编辑博客信息 */
+UPDATE
+  blogs
+SET
+  author = ?,
+  type = ?,
+  title = ?,
+  pics = ?,
+  tag_name = ?,
+  tag_color = ?
+WHERE
+  blogs.nanoid = ?;`;
+
 const DELETE_BLOG_BY_ID = `
 /* 删除博客 */
 UPDATE
@@ -97,7 +111,7 @@ UPDATE
 SET
   unuse = 1
 WHERE
-  blogs.nanoid = ?;`
+  blogs.nanoid = ?;`;
 
 const UPDATE_BLOG_UPDATE_DATE = `
 /* 更新博客更新时间 */
@@ -106,7 +120,7 @@ UPDATE
 SET
   update_date = CURRENT_TIMESTAMP
 WHERE
-  blogs.nanoid = ?;`
+  blogs.nanoid = ?;`;
 
 export {
   INIT_DATABASE,
@@ -115,5 +129,6 @@ export {
   GET_ALL_BLOGS,
   GET_BLOG_BY_ID,
   DELETE_BLOG_BY_ID,
-  UPDATE_BLOG_UPDATE_DATE
+  UPDATE_BLOG_UPDATE_DATE,
+  UPDATE_BLOG_INFO,
 };
