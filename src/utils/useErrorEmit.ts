@@ -15,8 +15,8 @@ export enum ErrorType {
 export function useEmit(
   errType: ErrorType,
   context: Context,
-  error: Error,
+  errorForLog: Error,
   errorMessage: string | null = null
 ) {
-  context.app.emit("custom-error", errType, context, error, errorMessage);
+  context.app.emit("custom-error", errType, context, errorForLog, errorMessage);
 }

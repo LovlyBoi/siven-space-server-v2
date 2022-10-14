@@ -13,6 +13,7 @@ const {
   getBlogMarkdown: getBlogMarkdownService,
   editBlogMarkdown: editBlogMarkdownService,
   publishBlog: publishBlogService,
+  editBlogInfo: editBlogInfoService,
   deleteBlog: deleteBlogService,
   updateBlogDate: updateBlogDateService,
 } = blogService;
@@ -76,7 +77,7 @@ class BlogController {
     }
     await next();
   };
-  // 编辑博客
+  // 编辑博客（修改文章）
   editBlogMarkdown: Middleware = async (ctx, next) => {
     const id = ctx.params.id as string;
     const content = ctx.request.body?.content as string | undefined;
@@ -92,8 +93,9 @@ class BlogController {
       await editBlogMarkdownService(id, content);
       await updateBlogDateService(id);
       ctx.body = "修改成功";
+      logger.info("博客文章修改" + id);
     } catch (e) {
-      console.log(e)
+      console.log(e);
       return useEmit(
         ErrorType.InternalServerError,
         ctx,
@@ -102,16 +104,42 @@ class BlogController {
       );
     }
   };
+  // 编辑博客（博客信息）
+  editBlogInfo: Middleware = async (ctx, next) => {
+    const { success, msg } = validateBlog(ctx.request.body);
+    if (!success) {
+      return useEmit(
+        ErrorType.BadRequest,
+        ctx,
+        new Error("客户端请求参数错误"),
+        msg
+      );
+    }
+    const blogData = ctx.request.body as Blog;
+    try {
+      await editBlogInfoService(blogData);
+      ctx.body = "更新成功";
+    } catch (e) {
+      return useEmit(ErrorType.BadRequest, ctx, e as Error, "更新失败");
+    }
+    await next();
+  };
   // 发布博客
   publishBlog: Middleware = async (ctx, next) => {
     const { success, msg } = validateBlog(ctx.request.body);
     if (!success) {
-      return useEmit(ErrorType.BadRequest, ctx, new Error("请求参数错误"), msg);
+      return useEmit(
+        ErrorType.BadRequest,
+        ctx,
+        new Error("客户端请求参数错误"),
+        msg
+      );
     }
     const blogData = ctx.request.body as Blog;
-    logger.info({ msg: '发布博客', blogData })
     try {
       await publishBlogService(blogData);
+      logger.info({ msg: "发布博客", blogData });
+      ctx.body = "发布成功";
     } catch (e) {
       return useEmit(
         ErrorType.BadRequest,
@@ -120,7 +148,6 @@ class BlogController {
         (e as Error).message
       );
     }
-    ctx.body = "发布成功";
     await next();
   };
   // 删除博客
@@ -141,11 +168,12 @@ class BlogController {
   };
 }
 
-function validateBlog(blog: { [k: string]: any }): {
+const validateBlog: (blog: Record<string, any>) => {
   success: boolean;
   msg: string;
-} {
+} = (blog) => {
   let ret = { success: false, msg: "" };
+  // 必须字段
   const requireKey = ["id", "author", "type", "title"];
   for (let i = 0; i < requireKey.length; i++) {
     const key = requireKey[i];
@@ -160,8 +188,9 @@ function validateBlog(blog: { [k: string]: any }): {
   } else if (typeof blog.pictures !== "string") {
     ret.msg = "blog.pictures 字段必须是 string[] 或 string";
   }
+  // 校验 tag 对象
   if (blog.tag && !(typeof blog.tag === "object")) {
-    ret.msg = "blog.pictures 字段必须是 string[] 或 string";
+    ret.msg = "blog.tag 字段必须是 { name: string; color: string } 类型";
   } else if (!blog.tag.color) {
     ret.msg = "blog.tag.color 字段是必须的";
   } else if (!blog.tag.name) {
@@ -169,7 +198,7 @@ function validateBlog(blog: { [k: string]: any }): {
   }
   ret.success = true;
   return ret;
-}
+};
 
 const blogController = new BlogController();
 
