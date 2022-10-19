@@ -7,12 +7,15 @@ import bodyParser from "koa-bodyparser";
 import { blogsRouter } from "../router/blogs.router";
 import { uploadRouter } from "../router/uploader.router";
 import { imageRouter } from "../router/image.router";
+import { trackerRouter } from "../router/tracker.router";
 import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
 import { cacheInit, cacheRootPath } from "../utils/cache";
 import { logger } from "../utils/log";
 import { initDataBase } from "../dao/init.dao";
+// 开启定时任务
+import "../utils/webDataTableJob";
 
 function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
   if (Array.isArray(routers)) {
@@ -26,11 +29,13 @@ function useRouter(app: Koa, routers: KoaRouter | KoaRouter[]) {
   }
 }
 
-const app = new Koa();
+const app = new Koa({
+  proxy: true,
+});
 
 // 初始化缓存目录
 cacheInit();
-logger.info('缓存初始化完成，根路径为：' + cacheRootPath);
+logger.info("缓存初始化完成，根路径为：" + cacheRootPath);
 
 // 初始化数据库
 initDataBase();
@@ -67,7 +72,7 @@ app.use(
 app.use(bodyParser());
 
 // 路由
-useRouter(app, [blogsRouter, uploadRouter, imageRouter]);
+useRouter(app, [blogsRouter, uploadRouter, imageRouter, trackerRouter]);
 
 // 错误处理
 app.on("custom-error", customErrorHandler);

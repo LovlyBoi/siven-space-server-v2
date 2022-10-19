@@ -7,7 +7,7 @@ import {
   UPDATE_BLOG_INFO,
   DELETE_BLOG_BY_ID,
   UPDATE_BLOG_UPDATE_DATE,
-} from "./statement";
+} from "./statements";
 import type { Blog, BlogForJSON, BlogType } from "../types";
 
 // 存储 blog

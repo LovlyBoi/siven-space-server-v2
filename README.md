@@ -45,7 +45,7 @@ CACHE_DIR=./.siven-cache
 
 blog
 
-字段：id（自增）、作者、发布时间、更新时间、文章类型、标题、图片url、tag名、tag颜色、存储位置、nanoID（来进行文章标记，不使用自增id，会暴露文章数量）。
+字段：作者、发布时间、更新时间、文章类型、标题、图片url、tag名、tag颜色、nanoID（来进行文章标记，不使用自增id，会暴露文章数量）。
 
 #### 增删改查
 
@@ -60,4 +60,33 @@ blog
 修改：
 
 在 CMS 系统上修改
+
+## 数据监控模块
+
+### Daily Visits / Monthly Visits
+
+#### 页面访问量
+
+每次进入，服务器分发一个 visitor_id，客户端存进sessionstorage中，来标记用户行为。
+
+每天，服务器会创建一张 visitor 表，保存分发的 visitor 数量。
+
+可以通过 sessionStorage 和 window.onbeforeunload 事件来判断用户是否完全退出（Pinia 初始化，让 active_tab 个数加一，一个页面卸载，让这个数值减一。减到 0 表示当前是完全退出，生命周期结束）。
+
+- visitor_id
+- from_ip
+- dist_time
+- leave_time
+
+每个月末设置定时任务来自己创建一个 MAU 表（或者建一个年表，适合月度只考虑活跃用户数，没有其他字段）。
+
+#### 文章访问量
+
+来判断哪篇文章更受欢迎。
+
+- 
+
+
+
+
 

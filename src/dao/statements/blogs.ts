@@ -1,4 +1,5 @@
-const INIT_DATABASE = `
+// 博客表操作语句
+const INIT_BLOG_TABLE = `
 /* 博客 */
 CREATE TABLE IF NOT EXISTS blogs (
   -- 博客id，这个是逻辑上的唯一标识
@@ -123,7 +124,7 @@ WHERE
   blogs.nanoid = ?;`;
 
 export {
-  INIT_DATABASE,
+  INIT_BLOG_TABLE,
   STORE_BLOGS,
   GET_BLOGS_BY_TYPE,
   GET_ALL_BLOGS,
