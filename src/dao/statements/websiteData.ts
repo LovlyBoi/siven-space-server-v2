@@ -1,5 +1,5 @@
 // 数据监控表语句
-const getDate = () => {
+export const getDate = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
@@ -33,6 +33,15 @@ const createVisitorsTable = () => {
   );`;
 };
 
+const getVisitorCountByDate = (year: number, month: number, date: number) => {
+  return `
+  /* 查询指定日期的日活数量 */
+  SELECT
+    COUNT(1) as count
+  FROM
+    visitors_${year}_${month}_${date};`;
+};
+
 const createVisitTable = () => {
   const [year, month, date] = getDate();
   return `
@@ -53,9 +62,17 @@ const insertVisitor = () => {
   return `
   /* 创建新游客 */
   INSERT INTO
-    visitors_${year}_${month}_${date} (visitor_id, ip)
+    visitors_${year}_${month}_${date} (
+      visitor_id,
+      ip,
+      country,
+      region,
+      city,
+      longitude,
+      latitude
+    )
   VALUES
-  (?, ?);`;
+    (?, ?, ?, ?, ?, ?, ?);`;
 };
 
 const insertVisit = () => {
@@ -68,4 +85,97 @@ const insertVisit = () => {
   (?, ?);`;
 };
 
-export { createVisitorsTable, createVisitTable, insertVisitor, insertVisit };
+// const CREATE_PV_RECORDS_TABLE = `
+// /* pv表 */
+// CREATE TABLE IF NOT EXISTS pv_records (
+//   -- 年月日
+//   record_date TIMESTAMP NOT NULL,
+//   -- pv
+//   pv INT DEFAULT 0,
+//   PRIMARY KEY(record_date)
+// );`;
+const CREATE_PV_RECORDS_TABLE = `
+/* 创建pv表 */
+CREATE TABLE IF NOT EXISTS pv_records (
+  -- 年月日
+  record_year SMALLINT NOT NULL,
+  record_month TINYINT NOT NULL,
+  record_date TINYINT NOT NULL,
+  -- pv
+  pv INT DEFAULT 0,
+  PRIMARY KEY(record_year, record_month, record_date)
+);`;
+
+// const INSERT_NEW_PV_RECORDS = `
+// /* 新增一个日活记录 */
+// INSERT INTO
+//   pv_records (record_date, pv)
+// VALUES
+//   (?, ?);`;
+const INSERT_NEW_PV_RECORDS = `
+/* 新增一个日活记录 */
+INSERT INTO
+  pv_records (record_year, record_month, record_date, pv)
+VALUES
+  (?, ?, ?, ?);`;
+
+const UPDATE_PV_RECORDS = `
+/* 如果已经有记录了，更新记录 */
+UPDATE
+  pv_records
+SET
+  pv = ?
+WHERE
+  record_year = ?
+  AND record_month = ?
+  AND record_date = ?;`;
+
+const COUNT_PV_RECORDS_BY_DATE = `
+/* 判断日活记录在不在 */
+SELECT
+  COUNT(1) as records
+FROM
+  pv_records
+WHERE
+  record_year = ?
+  AND record_month = ?
+  AND record_date = ?;`;
+
+const SELECT_PV_BY_PERIOD = `
+/* 查询两段时间内的日活 */
+SELECT
+  CONCAT(
+    record_year,
+    '-',
+    record_month,
+    '-',
+    record_date
+  ) as date,
+  pv
+FROM
+  pv_records A
+WHERE
+  DATE_FORMAT(
+    CONCAT(
+      A.record_year,
+      '-',
+      A.record_month,
+      '-',
+      A.record_date
+    ),
+    '%Y%m%d'
+  ) BETWEEN DATE_FORMAT(?, '%Y%m%d')
+  AND DATE_FORMAT(?, '%Y%m%d');`;
+
+export {
+  createVisitorsTable,
+  createVisitTable,
+  insertVisitor,
+  insertVisit,
+  getVisitorCountByDate,
+  CREATE_PV_RECORDS_TABLE,
+  COUNT_PV_RECORDS_BY_DATE,
+  INSERT_NEW_PV_RECORDS,
+  UPDATE_PV_RECORDS,
+  SELECT_PV_BY_PERIOD,
+};

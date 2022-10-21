@@ -1,4 +1,8 @@
-import { insertVisitDao, insertVisitorDao } from "../dao/tracker.dao";
+import {
+  insertVisitDao,
+  insertVisitorDao,
+  selectPvByPeriod,
+} from "../dao/tracker.dao";
 import { nanoid } from "nanoid";
 import { getCNRegion } from "../utils/getRegion";
 import geoip from "geoip-lite";
@@ -12,13 +16,22 @@ class TrackerService {
     if (!ipInfo) {
       throw new Error("client ip is invalid");
     }
+    // 中文的ip地址信息
     const region = getCNRegion(
       ipInfo.country,
       ipInfo.region,
       ipInfo.city,
       ipInfo.ll
     );
-    // insertVisitorDao(id, ip);
+    insertVisitorDao(
+      id,
+      ip,
+      ipInfo.country,
+      ipInfo.region,
+      ipInfo.city,
+      ipInfo.ll[1], // latitude
+      ipInfo.ll[0] // longitude
+    );
     console.log(ipInfo);
     return {
       id,
@@ -29,6 +42,15 @@ class TrackerService {
   // 创建新访问记录
   createVisit = (visitorId: string, blogId: string) =>
     insertVisitDao(visitorId, blogId);
+  // 获取pv数
+  getPv = async (startDate: Date, endDate: Date) => {
+    const dateFormat = (d: Date) =>
+      `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const start = dateFormat(startDate);
+    const end = dateFormat(endDate);
+    const records = await selectPvByPeriod(start, end);
+    return records;
+  };
 }
 
 export const trackerService = new TrackerService();
