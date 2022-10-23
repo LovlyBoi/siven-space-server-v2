@@ -9,6 +9,7 @@ import {
   UPDATE_BLOG_UPDATE_DATE,
 } from "./statements";
 import type { Blog, BlogForJSON, BlogType } from "../types";
+import { logger } from "../utils/log";
 
 // 存储 blog
 export async function storeBlogs(blog: Blog) {
