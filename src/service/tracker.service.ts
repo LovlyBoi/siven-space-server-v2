@@ -45,7 +45,7 @@ class TrackerService {
   // 获取pv数
   getPv = async (startDate: Date, endDate: Date) => {
     const dateFormat = (d: Date) =>
-      `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     const start = dateFormat(startDate);
     const end = dateFormat(endDate);
     const records = await selectPvByPeriod(start, end);
