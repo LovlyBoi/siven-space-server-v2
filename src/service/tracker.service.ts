@@ -10,7 +10,7 @@ import geoip from "geoip-lite";
 class TrackerService {
   // 创建新游客
   createVisitor = async (ip: string) => {
-    ip = "::ffff:42.100.183.172";
+    // ip = "::ffff:42.100.183.172";
     const id = nanoid();
     const ipInfo = geoip.lookup(ip);
     if (!ipInfo) {
