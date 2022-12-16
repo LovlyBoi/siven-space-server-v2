@@ -16,6 +16,7 @@ const {
   editBlogInfo: editBlogInfoService,
   deleteBlog: deleteBlogService,
   updateBlogDate: updateBlogDateService,
+  getTopNReadingVlomueBlogs: getTopNReadingVlomueBlogsService,
 } = blogService;
 
 class BlogController {
@@ -76,6 +77,23 @@ class BlogController {
       }
     }
     await next();
+  };
+  // 获取topn博客
+  getTopNReadingVlomueBlogs: Middleware = async (ctx, next) => {
+    let n = parseInt((ctx.params.n as string) || "10");
+    n = Number.isNaN(n) ? 10 : n;
+    try {
+      const blogs = await getTopNReadingVlomueBlogsService(n);
+      ctx.body = blogs;
+    } catch (e) {
+      const err = e as Error;
+      return useEmit(
+        ErrorType.InternalServerError,
+        ctx,
+        err,
+        "TopN cards 获取失败"
+      );
+    }
   };
   // 编辑博客（修改文章）
   editBlogMarkdown: Middleware = async (ctx, next) => {

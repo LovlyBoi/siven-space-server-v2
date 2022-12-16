@@ -7,9 +7,10 @@ import {
   UPDATE_BLOG_INFO,
   DELETE_BLOG_BY_ID,
   UPDATE_BLOG_UPDATE_DATE,
+  INCREASE_BLOG_READING_VOLUME,
+  GET_TOP_N_READING_VOLUME_BLOGS,
 } from "./statements";
 import type { Blog, BlogForJSON, BlogType } from "../types";
-import { logger } from "../utils/log";
 
 // 存储 blog
 export async function storeBlogs(blog: Blog) {
@@ -104,5 +105,17 @@ export async function deleteBlogById(id: string) {
 // 更新博客的 update_date
 export async function updateBlogDate(id: string) {
   const result = await pool.execute(UPDATE_BLOG_UPDATE_DATE, [id]);
-  return result[0]
+  return result[0];
+}
+
+// 博客阅读量+1
+export function increaseBlogReadingVolume(id: string) {
+  return pool.execute(INCREASE_BLOG_READING_VOLUME, [id]);
+}
+
+// 获取top n访问量的博客
+export async function getTopNReadingVlomueBlogs(n: number) {
+  const result = await pool.execute(GET_TOP_N_READING_VOLUME_BLOGS, [n + ""]);
+  // console.log(result[0]);
+  return result[0] as any[];
 }

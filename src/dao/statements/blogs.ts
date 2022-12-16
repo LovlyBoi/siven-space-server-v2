@@ -16,12 +16,14 @@ CREATE TABLE IF NOT EXISTS blogs (
   tag_name varchar(30),
   -- tag 颜色
   tag_color varchar(30),
+  -- 阅读量
+  reading_volume int DEFAULT 0,
   -- 发布时间
   publish_date timestamp DEFAULT CURRENT_TIMESTAMP,
   -- 更新时间
   update_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   -- 删除字段
-  unuse int DEFAULT 0,
+  unuse tinyint DEFAULT 0,
   index type_index (type),
   index unuse_index (unuse)
 );`;
@@ -123,6 +125,36 @@ SET
 WHERE
   blogs.nanoid = ?;`;
 
+const INCREASE_BLOG_READING_VOLUME = `
+/* 博客阅读量+1 */
+UPDATE
+  blogs
+SET
+  reading_volume = reading_volume + 1
+WHERE
+  blogs.nanoid = ?;`;
+
+const GET_TOP_N_READING_VOLUME_BLOGS = `
+/* 获取访问量前n的博客 */
+SELECT
+  nanoid as id,
+  author,
+  type,
+  title,
+  pics as pictures,
+  JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
+  reading_volume as readingVolume,
+  publish_date as publishDate,
+  update_date as updateDate
+FROM
+  blogs
+WHERE
+  blogs.unuse = 0
+ORDER BY
+  reading_volume DESC
+LIMIT
+  ?;`
+
 export {
   INIT_BLOG_TABLE,
   STORE_BLOGS,
@@ -132,4 +164,6 @@ export {
   DELETE_BLOG_BY_ID,
   UPDATE_BLOG_UPDATE_DATE,
   UPDATE_BLOG_INFO,
+  INCREASE_BLOG_READING_VOLUME,
+  GET_TOP_N_READING_VOLUME_BLOGS,
 };

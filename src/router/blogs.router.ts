@@ -8,6 +8,7 @@ const {
   deleteBlog,
   editBlogMarkdown,
   editBlogInfo,
+  getTopNReadingVlomueBlogs,
 } = blogController;
 
 const blogsRouter = new KoaRouter({ prefix: "/blogs" });
@@ -23,5 +24,7 @@ blogsRouter.post("/edit/markdown/:id", editBlogMarkdown);
 blogsRouter.post("/edit/blog", editBlogInfo);
 
 blogsRouter.post("/publish", publishBlog);
+
+blogsRouter.get("/top/readingVolume", getTopNReadingVlomueBlogs);
 
 export { blogsRouter };

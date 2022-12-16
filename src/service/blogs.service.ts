@@ -6,6 +6,8 @@ import {
   updateBlogInfo,
   deleteBlogById,
   updateBlogDate,
+  increaseBlogReadingVolume,
+  getTopNReadingVlomueBlogs,
 } from "../dao/blogs.dao";
 import {
   getHtmlById,
@@ -55,10 +57,26 @@ class BlogsService {
     // 取前四张图片
     return handleCardPics(cards);
   };
+  // 获取阅读量前n的博客
+  getTopNReadingVlomueBlogs = async (n: number = 10) => {
+    let cards: any[];
+    try {
+      cards = await getTopNReadingVlomueBlogs(n);
+    } catch (e) {
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
+      throw new Error("数据库读取失败");
+    }
+    // 取前四张图片
+    return handleCardPics(cards);
+  };
   // 根据id获取博客
   getBlogById = async (id: string): Promise<ParsedHtmlForJSON> => {
-    const blogInfo = await getBlogById(id);
-    const parsed = await getHtmlById(id);
+    const [blogInfo, parsed] = await Promise.all([
+      getBlogById(id),
+      getHtmlById(id),
+    ]);
+    increaseBlogReadingVolume(id);
     return { parsed, ...blogInfo };
   };
   // 拿到博客markdown原文（可读流）
@@ -88,12 +106,16 @@ class BlogsService {
   updateBlogDate = async (id: string) => await updateBlogDate(id);
 }
 
-function handleCardPics(cards: BlogForJSON[], limit: number = 4) {
+function handleCardPics(cards: any[], limit: number = 4) {
   cards.forEach((card) => {
-    card.pictures =
-      card.pictures.length > limit
-        ? card.pictures.splice(0, limit)
-        : card.pictures;
+    if (Array.isArray(card.pictures)) {
+      card.pictures =
+        card.pictures.length > limit
+          ? card.pictures.splice(0, limit)
+          : card.pictures;
+    } else {
+      card.pictures = (card.pictures && card.pictures.split(" ")) || [];
+    }
   });
   return cards;
 }
