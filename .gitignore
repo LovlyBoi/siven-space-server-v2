@@ -14,6 +14,9 @@ build
 # 项目的缓存目录
 .siven*
 
+# 秘钥
+SECRET_KEY
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

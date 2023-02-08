@@ -8,6 +8,7 @@ import { blogsRouter } from "../router/blogs.router";
 import { uploadRouter } from "../router/uploader.router";
 import { imageRouter } from "../router/image.router";
 import { trackerRouter } from "../router/tracker.router";
+import { authRouter } from "../router/auth.router";
 import { customErrorHandler, defaultErrorHandler } from "./errHandler";
 import { colorfulLog } from "../utils/colorfulLog";
 import { network as ip } from "../utils/getIp";
@@ -72,7 +73,13 @@ app.use(
 app.use(bodyParser());
 
 // 路由
-useRouter(app, [blogsRouter, uploadRouter, imageRouter, trackerRouter]);
+useRouter(app, [
+  blogsRouter,
+  uploadRouter,
+  imageRouter,
+  trackerRouter,
+  authRouter,
+]);
 
 // 错误处理
 app.on("custom-error", customErrorHandler);
