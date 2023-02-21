@@ -1,9 +1,12 @@
 import { token } from "../utils/token";
+import { hash } from "../utils/bcrypt"
 import { VerifyErrors } from "jsonwebtoken";
 
 class AuthService {
-  createNewUser = async () => {
+  createNewUser = async (username: string, password: string) => {
     // ToDo: 注册新用户
+    const code = await hash(password)
+    console.log(code.length)
     // 注册新用户（dao层调用）
     // 返回用户信息（dao层调用）
     return {

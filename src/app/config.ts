@@ -8,7 +8,36 @@ const { error: localEnvError, parsed: localEnvParsed } = dotenv.config({
   path: resolve(process.cwd(), ".env.local"),
 });
 
-const env = Object.assign(
+function hasValue(value: string | undefined): boolean {
+  if (value === "null" || value === "undefined") {
+    return false;
+  } else {
+    return !!value;
+  }
+}
+
+function loadEnv(...envs: (object | undefined)[]) {
+  const ret: object = {};
+  for (let i = 0; i < envs.length; i++) {
+    const curObj = envs[i];
+    if (!curObj) continue;
+    for (let key in curObj) {
+      if (hasValue((curObj as any)[key])) {
+        (ret as any)[key] = (curObj as any)[key];
+      }
+    }
+  }
+  return ret;
+}
+
+// const env = Object.assign(
+//   {},
+//   envError ? {} : envParsed,
+//   localEnvError ? {} : localEnvParsed
+// );
+
+// Object.assign 不能处理 'null'
+const env = loadEnv(
   {},
   envError ? {} : envParsed,
   localEnvError ? {} : localEnvParsed

@@ -14,7 +14,7 @@ class AuthController {
     if (!username || !password) {
       return useEmit(ErrorType.Forbidden, ctx, new Error(), "用户信息不全");
     }
-    const userInfo = createNewUser();
+    const userInfo = createNewUser(username, password);
     ctx.body = {
       isSuccess: true,
       msg: "登录成功",
