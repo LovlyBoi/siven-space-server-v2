@@ -12,7 +12,7 @@ build
 *.local
 
 # 项目的缓存目录
-.siven*
+.*_cache
 
 # 秘钥
 SECRET_KEY

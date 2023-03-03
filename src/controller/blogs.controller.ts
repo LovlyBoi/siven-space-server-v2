@@ -2,13 +2,14 @@ import { Middleware } from "koa";
 import { useEmit, ErrorType } from "../utils/useErrorEmit";
 import { blogService } from "../service/blogs.service";
 import { isMarkDownExist } from "../utils/cache";
-import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
+import { Blog, BlogForJSON, BlogType, ParsedHtmlForJSON } from "../types";
 import { logger } from "../utils/log";
 
 const {
   getAllBlogs,
-  getEssayBlogs,
-  getNoteBlogs,
+  // getEssayBlogs,
+  // getNoteBlogs,
+  getBlogs: getBlogsService,
   getBlogById: getBlogByIdService,
   getBlogMarkdown: getBlogMarkdownService,
   editBlogMarkdown: editBlogMarkdownService,
@@ -22,17 +23,15 @@ const {
 class BlogController {
   // 根据类型进行分类
   getBlogs: Middleware = async (ctx, next) => {
-    const type = ctx.query.type;
+    const type = ctx.query.type as string | undefined;
     let ps = parseInt(ctx.query.ps as string);
     let pn = parseInt(ctx.query.pn as string);
     ps = ps == null || Number.isNaN(ps) ? 10 : ps;
     pn = pn == null || Number.isNaN(pn) ? 1 : pn;
     let cards: BlogForJSON[] | string | Buffer;
     try {
-      if (type === "note") {
-        cards = await getNoteBlogs(ps, pn);
-      } else if (type === "essay") {
-        cards = await getEssayBlogs(ps, pn);
+      if (type && type in BlogType) {
+        cards = await getBlogsService(type as keyof typeof BlogType, ps, pn);
       } else {
         cards = await getAllBlogs(ps, pn);
       }

@@ -10,7 +10,7 @@ import {
   INCREASE_BLOG_READING_VOLUME,
   GET_TOP_N_READING_VOLUME_BLOGS,
 } from "./statements";
-import type { Blog, BlogForJSON, BlogType } from "../types";
+import { Blog, BlogForJSON, BlogType } from "../types";
 
 // 存储 blog
 export async function storeBlogs(blog: Blog) {

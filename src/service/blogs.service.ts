@@ -33,11 +33,14 @@ class BlogsService {
     // 取前四张图片
     return handleCardPics(cards);
   };
-  // 获取笔记类型博客
-  getNoteBlogs = async (pageSize: number, pageNumber: number) => {
+  getBlogs = async (
+    type: keyof typeof BlogType,
+    pageSize: number,
+    pageNumber: number
+  ) => {
     let cards: BlogForJSON[];
     try {
-      cards = await getBlogsByType(BlogType.note, pageSize, pageNumber);
+      cards = await getBlogsByType(BlogType[type], pageSize, pageNumber);
     } catch (e) {
       const error = e as Error;
       logger.error({ errorMessage: error.message, errorStack: error.stack });
@@ -46,17 +49,30 @@ class BlogsService {
     // 取前四张图片
     return handleCardPics(cards);
   };
-  // 获取随笔类型博客
-  getEssayBlogs = async (pageSize: number, pageNumber: number) => {
-    let cards: BlogForJSON[];
-    try {
-      cards = await getBlogsByType(BlogType.essay, pageSize, pageNumber);
-    } catch (e) {
-      throw new Error("数据库读取失败");
-    }
-    // 取前四张图片
-    return handleCardPics(cards);
-  };
+  // 获取笔记类型博客
+  // getNoteBlogs = async (pageSize: number, pageNumber: number) => {
+  //   let cards: BlogForJSON[];
+  //   try {
+  //     cards = await getBlogsByType(BlogType.note, pageSize, pageNumber);
+  //   } catch (e) {
+  //     const error = e as Error;
+  //     logger.error({ errorMessage: error.message, errorStack: error.stack });
+  //     throw new Error("数据库读取失败");
+  //   }
+  //   // 取前四张图片
+  //   return handleCardPics(cards);
+  // };
+  // // 获取随笔类型博客
+  // getEssayBlogs = async (pageSize: number, pageNumber: number) => {
+  //   let cards: BlogForJSON[];
+  //   try {
+  //     cards = await getBlogsByType(BlogType.essay, pageSize, pageNumber);
+  //   } catch (e) {
+  //     throw new Error("数据库读取失败");
+  //   }
+  //   // 取前四张图片
+  //   return handleCardPics(cards);
+  // };
   // 获取阅读量前n的博客
   getTopNReadingVlomueBlogs = async (n: number = 10) => {
     let cards: any[];

@@ -29,8 +29,12 @@ interface BlogForJSON {
 };
 
 enum BlogType {
-  "note" = 1,
-  "essay" = 2,
+  "meat-dish" = 1,
+  "vegetable-dish",
+  "staple",
+  "dessert",
+  "drink",
+  "soup",
 }
 
 type TagColor = "yellow" | "pink" | "green" | "indigo";
