@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS blogs (
   -- 发布时间
   publish_date timestamp DEFAULT CURRENT_TIMESTAMP,
   -- 更新时间
-  update_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  update_date timestamp DEFAULT CURRENT_TIMESTAMP,
   -- 删除字段
   unuse tinyint DEFAULT 0,
   index type_index (type),
