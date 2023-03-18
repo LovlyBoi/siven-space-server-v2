@@ -9,7 +9,8 @@
     "commit": "git-cz",
     "dev": "nodemon --exec \"ts-node\" main.ts",
     "build": "tsc",
-    "build:dep": "tsc && cp ./package.json ./siven-space-server-v2/package.json"
+    "build:dep": "tsc && cp ./package.json ./siven-space-server-v2/package.json",
+    "heap": "ts-node ./src/utils/Heap.ts"
   },
   "config": {
     "commitizen": {
