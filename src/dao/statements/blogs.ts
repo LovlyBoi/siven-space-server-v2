@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS blogs (
   -- 博客id，这个是逻辑上的唯一标识
   nanoid varchar(32) PRIMARY KEY NOT NULL,
   -- 作者
-  author varchar(30) NOT NULL,
+  author varchar(32) NOT NULL,
   -- 文章类型
   type int NOT NULL,
   -- 文章标题

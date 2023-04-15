@@ -1,18 +1,82 @@
 import { token } from "../utils/token";
-import { hash } from "../utils/bcrypt"
-import { VerifyErrors } from "jsonwebtoken";
+import { nanoid } from "nanoid";
+import { hash, compare } from "../utils/bcrypt";
+import { omit } from "lodash";
+import {
+  getUserInfoById,
+  getUserInfoByName,
+  createNewUser as createNewUserDao,
+} from "../dao/users.dao";
+import { logger } from "../utils/log";
+import type { UserInfo } from "../types";
+
+type ServiceState = {
+  isSuccess: boolean;
+  userInfo?: Omit<UserInfo, "unuse" | "password">;
+  msg: string;
+};
 
 class AuthService {
   createNewUser = async (username: string, password: string) => {
     // ToDo: 注册新用户
-    const code = await hash(password)
-    console.log(code.length)
-    // 注册新用户（dao层调用）
-    // 返回用户信息（dao层调用）
-    return {
-      avatar: "http://xxx.avatar.com/123",
-      username: "用户名",
+    const state: ServiceState = {
+      isSuccess: false,
+      msg: "",
     };
+    const id = nanoid();
+    const code = await hash(password);
+    console.log(code.length);
+    // 注册新用户（dao层调用）
+    try {
+      if ((await getUserInfoByName(username)).length > 0) {
+        state.isSuccess = false;
+        state.msg = "该用户名已被占用";
+        return state;
+      }
+      await createNewUserDao(
+        id,
+        username,
+        code,
+        1,
+        "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+      );
+      state.isSuccess = true;
+      state.msg = "创建成功";
+      const info = (await getUserInfoById(id))[0];
+      state.userInfo = omit(info, ['password', 'unuse']);
+      console.log(state.userInfo)
+    } catch (e) {
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
+      throw e;
+    }
+    return state;
+  };
+  login = async (username: string, password: string): Promise<ServiceState> => {
+    const state: ServiceState = {
+      isSuccess: false,
+      msg: "",
+    };
+    try {
+      const result = await getUserInfoByName(username);
+      // console.log(result);
+      if (result.length < 1) {
+        state.msg = "该用户尚未注册";
+      } else if (result[0].unuse) {
+        state.msg = "该用户已注销";
+      } else if (!(await compare(password, result[0].password))) {
+        state.msg = "密码错误";
+      } else {
+        state.isSuccess = true;
+        state.userInfo = omit(result[0], ["unuse", "password"]);
+        state.msg = "登陆成功";
+      }
+    } catch (e) {
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
+      throw e;
+    }
+    return state;
   };
   getUserInfo = async (userId: string) => {
     // ToDo: 获取用户信息
@@ -64,10 +128,10 @@ class AuthService {
     ret.isOk = result.isOk;
     if (ret.isOk) {
       const payload = result.payload as any;
-      if (payload?.type !== 'refresh_token') {
+      if (payload?.type !== "refresh_token") {
         ret.isOk = false;
-        ret.msg = 'token类型错误';
-        ret.type = 'token type error';
+        ret.msg = "token类型错误";
+        ret.type = "token type error";
         return ret;
       }
       ret.msg = "校验成功";

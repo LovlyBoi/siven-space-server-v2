@@ -3,8 +3,9 @@ import { trackerService } from "../service/tracker.service";
 import { ErrorType, useEmit } from "../utils/useErrorEmit";
 import { token } from "../utils/token";
 import { authService } from "../service/auth.service";
+import type { UserInfo } from "../types";
 
-const { createNewUser, generateToken, verifyRefreshToken } = authService;
+const { createNewUser, login, generateToken, verifyRefreshToken } = authService;
 
 class AuthController {
   userRegister: Middleware = async (ctx, next) => {
@@ -14,12 +15,20 @@ class AuthController {
     if (!username || !password) {
       return useEmit(ErrorType.Forbidden, ctx, new Error(), "用户信息不全");
     }
-    const userInfo = createNewUser(username, password);
+    let isSuccess = false,
+      msg = "",
+      userInfo: Omit<UserInfo, "unuse" | "password"> | undefined;
+    try {
+      const state = await createNewUser(username, password);
+      isSuccess = state.isSuccess;
+      msg = state.msg;
+      userInfo = state.userInfo;
+    } catch (e) {}
     ctx.body = {
-      isSuccess: true,
-      msg: "登录成功",
-      token: await generateToken(),
+      isSuccess,
+      msg,
       userInfo,
+      token: isSuccess ? await generateToken() : undefined,
     };
     await next();
   };
@@ -35,11 +44,32 @@ class AuthController {
         "用户信息不全"
       );
     }
-    ctx.body = {
+    const state: {
+      isSuccess: boolean;
+      msg: string;
+      token?: {
+        accessToken: string;
+        refreshToken: string;
+      };
+      userInfo?: Omit<UserInfo, "unuse" | "password">;
+    } = {
       isSuccess: true,
       msg: "登录成功",
-      token: await generateToken(),
     };
+    try {
+      const { isSuccess, msg, userInfo } = await login(username, password);
+      if (isSuccess) {
+        state.token = await generateToken();
+        state.userInfo = userInfo!;
+      } else {
+        state.isSuccess = isSuccess;
+        state.msg = msg;
+      }
+    } catch (e) {
+      state.isSuccess = false;
+      useEmit(ErrorType.InternalServerError, ctx, e as Error);
+    }
+    ctx.body = state;
     await next();
   };
   refreshToken: Middleware = async (ctx, next) => {
@@ -66,7 +96,6 @@ class AuthController {
         msg: result.msg,
       };
     }
-
     await next();
   };
 }
