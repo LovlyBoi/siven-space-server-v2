@@ -5,7 +5,14 @@ import { token } from "../utils/token";
 import { authService } from "../service/auth.service";
 import type { UserInfo } from "../types";
 
-const { createNewUser, login, generateToken, verifyRefreshToken } = authService;
+const {
+  createNewUser,
+  login,
+  generateToken,
+  parseToken,
+  verifyRefreshToken,
+  getUserInfo: getUserInfoService,
+} = authService;
 
 class AuthController {
   userRegister: Middleware = async (ctx, next) => {
@@ -28,7 +35,7 @@ class AuthController {
       isSuccess,
       msg,
       userInfo,
-      token: isSuccess ? await generateToken() : undefined,
+      token: isSuccess ? await generateToken(userInfo?.id ?? "") : undefined,
     };
     await next();
   };
@@ -59,7 +66,7 @@ class AuthController {
     try {
       const { isSuccess, msg, userInfo } = await login(username, password);
       if (isSuccess) {
-        state.token = await generateToken();
+        state.token = await generateToken(userInfo?.id ?? "");
         state.userInfo = userInfo!;
       } else {
         state.isSuccess = isSuccess;
@@ -70,6 +77,47 @@ class AuthController {
       useEmit(ErrorType.InternalServerError, ctx, e as Error);
     }
     ctx.body = state;
+    await next();
+  };
+  getUserInfo: Middleware = async (ctx, next) => {
+    const token = ctx.request.body.token;
+    if (!token) {
+      return useEmit(
+        ErrorType.Unauthorized,
+        ctx,
+        new Error("未携带refresh_token"),
+        "未携带refresh_token"
+      );
+    }
+    const result = parseToken(token);
+    if (result.isOk) {
+      const id  = result.data?.aud
+      if (!id) {
+        ctx.body = {
+          isSeccess: false,
+          msg: 'token中id为空',
+        }
+        return await next();
+      }
+      const state = await getUserInfoService(id)
+      if (!state.isSuccess) {
+        ctx.body = {
+          isSuccess: state.isSuccess,
+          msg: state.msg,
+        }
+        return await next();
+      }
+      ctx.body = {
+        isSuccess: true,
+        userInfo: state.userInfo,
+      };
+    } else {
+      ctx.body = {
+        isSuccess: false,
+        type: result.type,
+        msg: result.msg,
+      };
+    }
     await next();
   };
   refreshToken: Middleware = async (ctx, next) => {
@@ -87,7 +135,7 @@ class AuthController {
       // 长期token有效
       ctx.body = {
         isSuccess: true,
-        token: await generateToken(),
+        token: await generateToken(result.data?.aud ?? ""),
       };
     } else {
       ctx.body = {

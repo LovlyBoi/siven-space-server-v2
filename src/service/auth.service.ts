@@ -43,8 +43,8 @@ class AuthService {
       state.isSuccess = true;
       state.msg = "创建成功";
       const info = (await getUserInfoById(id))[0];
-      state.userInfo = omit(info, ['password', 'unuse']);
-      console.log(state.userInfo)
+      state.userInfo = omit(info, ["password", "unuse"]);
+      console.log(state.userInfo);
     } catch (e) {
       const error = e as Error;
       logger.error({ errorMessage: error.message, errorStack: error.stack });
@@ -59,7 +59,6 @@ class AuthService {
     };
     try {
       const result = await getUserInfoByName(username);
-      // console.log(result);
       if (result.length < 1) {
         state.msg = "该用户尚未注册";
       } else if (result[0].unuse) {
@@ -78,64 +77,79 @@ class AuthService {
     }
     return state;
   };
-  getUserInfo = async (userId: string) => {
+  // 根据token获取用户信息
+  getUserInfo = async (id: string) => {
     // ToDo: 获取用户信息
-    return {
-      avatar: "http://xxx.avatar.com/123",
-      username: "用户名",
+    const state: ServiceState = {
+      isSuccess: false,
+      msg: "",
+      userInfo: undefined,
     };
+    try {
+      const result = await getUserInfoById(id);
+      if (result.length < 1) {
+        state.msg = "该用户尚未注册";
+        return state;
+      } else if (result[0].unuse) {
+        state.msg = "该用户已注销";
+        return state;
+      }
+      state.isSuccess = true;
+      state.userInfo = omit(result[0], ["unuse", "password"]);
+    } catch (e) {
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
+      throw e;
+    }
+    return state;
   };
-  getAccessToken = (expHour: number = 0.5) =>
+  getAccessToken = (id: string, expHour: number = 0.5) =>
     token.signToken(
       {
         type: "access_token",
+        aud: id,
       },
       Math.floor(Date.now() / 1000) + 60 * 60 * expHour
     );
-  getRefreshToken = (expHour: number = 24 * 3) =>
+  getRefreshToken = (id: string, expHour: number = 24 * 3) =>
     token.signToken(
       {
         type: "refresh_token",
+        aud: id,
       },
       Math.floor(Date.now() / 1000) + 60 * 60 * expHour
     );
-  generateToken = async () => {
+  generateToken = async (id: string) => {
     // ToDo: 生成access_token以及refresh_token
     // 1小时失效的短期token
-    const accessToken = await this.getAccessToken();
+    const accessToken = await this.getAccessToken(id);
     // 3天失效的长期token
-    const refreshToken = await this.getRefreshToken();
+    const refreshToken = await this.getRefreshToken(id);
 
     return {
       accessToken,
       refreshToken,
     };
   };
-  verifyRefreshToken = (
-    refreshToken: string
-  ): { isOk: boolean; type: string; msg: string } => {
-    // ToDo: 校验refresh_token
+  parseToken = (
+    user_token: string
+  ): { isOk: boolean; type: string; msg: string; data: any } => {
     const ret = {
       isOk: false,
       type: "",
       msg: "",
+      data: {} as any,
     };
-    if (!refreshToken) {
-      ret.msg = "未携带refresh_token";
+    if (!user_token) {
+      ret.msg = "未携带token";
       return ret;
     }
-    const result = token.verifyToken(refreshToken);
+    const result = token.verifyToken(user_token);
     ret.isOk = result.isOk;
-    if (ret.isOk) {
-      const payload = result.payload as any;
-      if (payload?.type !== "refresh_token") {
-        ret.isOk = false;
-        ret.msg = "token类型错误";
-        ret.type = "token type error";
-        return ret;
-      }
+    if (result.isOk) {
       ret.msg = "校验成功";
       ret.type = "ok";
+      ret.data = result.payload;
       return ret;
     } else {
       if (result.error?.name === "TokenExpiredError") {
@@ -152,6 +166,51 @@ class AuthService {
       }
     }
     return ret;
+  };
+  verifyRefreshToken = (
+    refreshToken: string
+  ): { isOk: boolean; type: string; msg: string; data: any } => {
+    // ToDo: 校验refresh_token
+    // const ret = {
+    //   isOk: false,
+    //   type: "",
+    //   msg: "",
+    // };
+    // const result = token.verifyToken(refreshToken);
+    // ret.isOk = result.isOk;
+    // if (result.isOk) {
+    //   const payload = result.payload as any;
+    //   if (payload?.type !== "refresh_token") {
+    //     ret.isOk = false;
+    //     ret.msg = "token类型错误";
+    //     ret.type = "token type error";
+    //     return ret;
+    //   }
+    //   ret.msg = "校验成功";
+    //   ret.type = "ok";
+    //   return ret;
+    // } else {
+    //   if (result.error?.name === "TokenExpiredError") {
+    //     ret.msg = "登录超时，请重新登陆";
+    //     ret.type = result.error.message;
+    //   } else if (result.error?.name === "JsonWebTokenError") {
+    //     ret.msg = "token解析失败";
+    //     ret.type = result.error.message;
+    //   } else if (result.error?.name === "NotBeforeError") {
+    //     ret.msg = "token还未生效";
+    //     ret.type = result.error.message;
+    //   } else {
+    //     let n: never;
+    //   }
+    // }
+    const result = this.parseToken(refreshToken);
+    if (result.data?.type && result.data?.type !== "refresh_token") {
+      console.log(result);
+      result.isOk = false;
+      result.msg = "token类型错误";
+      result.type = "token type error";
+    }
+    return result;
   };
 }
 
