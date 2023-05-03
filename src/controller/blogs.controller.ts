@@ -9,6 +9,8 @@ const {
   getAllBlogs,
   // getEssayBlogs,
   // getNoteBlogs,
+  hasNextPage,
+  getRecommend: getRecommendService,
   getBlogs: getBlogsService,
   getBlogById: getBlogByIdService,
   getBlogMarkdown: getBlogMarkdownService,
@@ -24,28 +26,45 @@ class BlogController {
   // 根据类型进行分类
   getBlogs: Middleware = async (ctx, next) => {
     const type = ctx.query.type as string | undefined;
+    const from = ctx.query.from as string | undefined;
     let ps = parseInt(ctx.query.ps as string);
     let pn = parseInt(ctx.query.pn as string);
     ps = ps == null || Number.isNaN(ps) ? 10 : ps;
     pn = pn == null || Number.isNaN(pn) ? 1 : pn;
+    if (from === "cms") {
+      ps = 999;
+    }
     let cards: BlogForJSON[] | string | Buffer;
+    let hasNext: boolean;
     try {
       if (type && type in BlogType) {
         cards = await getBlogsService(type as keyof typeof BlogType, ps, pn);
       } else {
         cards = await getAllBlogs(ps, pn);
       }
+      hasNext = await hasNextPage(ps, pn);
     } catch (e: unknown) {
       const err = e as Error;
       return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
     }
     ctx.type = "application/json";
-    ctx.body = cards;
+    ctx.body = { cards, hasNext };
     await next();
   };
+  getRecommend: Middleware = async (ctx, next) => {
+    const visitorId = ctx.query.visitorId as string | undefined
+    if (!visitorId) {
+      ctx.body = []
+      return
+    }
+    const recommend = await getRecommendService(visitorId);
+    ctx.body = recommend
+    await next()
+  }
   // 获取博客正文
   getBlogById: Middleware = async (ctx, next) => {
     const id = ctx.params.id as string;
+    const visitorId = ctx.query.visitorId as string;
     const notFound = () =>
       useEmit(ErrorType.NotFound, ctx, new Error("请求地址不存在"));
     const serverError = () =>

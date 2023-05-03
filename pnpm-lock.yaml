@@ -22,6 +22,7 @@ specifiers:
   '@types/node-schedule': ^2.1.0
   '@types/sharp': ^0.31.0
   bcryptjs: ^2.4.3
+  collaborative-filter: 1.0.0-beta.3
   commitizen: ^4.2.5
   dotenv: ^16.0.2
   geoip-lite: ^1.4.6
@@ -51,6 +52,7 @@ dependencies:
   '@types/jsonwebtoken': 9.0.1
   '@types/lodash-es': registry.npmmirror.com/@types/lodash-es/4.17.7
   bcryptjs: 2.4.3
+  collaborative-filter: registry.npmmirror.com/collaborative-filter/1.0.0-beta.3
   dotenv: 16.0.2
   geoip-lite: 1.4.6
   highlight.js: 11.6.0
@@ -3317,6 +3319,38 @@ packages:
     name: '@types/lodash'
     version: 4.14.192
 
+  registry.npmmirror.com/collaborative-filter/1.0.0-beta.3:
+    resolution: {integrity: sha512-J8yHii+fug/g6z5qg1y3HzlgVgGTXVk5nxcl7PrWALlidGQ4SBYPE+rdMmVvxHFtA5JQkq688BiNq8ItOqObuw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/collaborative-filter/-/collaborative-filter-1.0.0-beta.3.tgz}
+    name: collaborative-filter
+    version: 1.0.0-beta.3
+    dependencies:
+      mathjs: registry.npmmirror.com/mathjs/6.6.5
+    dev: false
+
+  registry.npmmirror.com/complex.js/2.1.1:
+    resolution: {integrity: sha512-8njCHOTtFFLtegk6zQo0kkVX1rngygb/KQI6z1qZxlFI3scluC+LVTCFbrkWjBv4vvLlbQ9t88IPMC6k95VTTg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/complex.js/-/complex.js-2.1.1.tgz}
+    name: complex.js
+    version: 2.1.1
+    dev: false
+
+  registry.npmmirror.com/decimal.js/10.4.3:
+    resolution: {integrity: sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/decimal.js/-/decimal.js-10.4.3.tgz}
+    name: decimal.js
+    version: 10.4.3
+    dev: false
+
+  registry.npmmirror.com/escape-latex/1.2.0:
+    resolution: {integrity: sha512-nV5aVWW1K0wEiUIEdZ4erkGGH8mDxGyxSeqPzRNtWP7ataw+/olFObw7hujFWlVjNsaDFw5VZ5NzVSIqRgfTiw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/escape-latex/-/escape-latex-1.2.0.tgz}
+    name: escape-latex
+    version: 1.2.0
+    dev: false
+
+  registry.npmmirror.com/fraction.js/4.2.0:
+    resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/fraction.js/-/fraction.js-4.2.0.tgz}
+    name: fraction.js
+    version: 4.2.0
+    dev: false
+
   registry.npmmirror.com/fsevents/2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/fsevents/-/fsevents-2.3.2.tgz}
     name: fsevents
@@ -3334,6 +3368,12 @@ packages:
     dev: true
     optional: true
 
+  registry.npmmirror.com/javascript-natural-sort/0.7.1:
+    resolution: {integrity: sha512-nO6jcEfZWQXDhOiBtG2KvKyEptz7RVbpGP4vTD2hLBdmNQSsCiicO2Ioinv6UI4y9ukqnBpy+XZ9H6uLNgJTlw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/javascript-natural-sort/-/javascript-natural-sort-0.7.1.tgz}
+    name: javascript-natural-sort
+    version: 0.7.1
+    dev: false
+
   registry.npmmirror.com/lodash-es/4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/lodash-es/-/lodash-es-4.17.21.tgz}
     name: lodash-es
@@ -3344,3 +3384,39 @@ packages:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/lodash/-/lodash-4.17.21.tgz}
     name: lodash
     version: 4.17.21
+
+  registry.npmmirror.com/mathjs/6.6.5:
+    resolution: {integrity: sha512-jvRqk7eoEHBcx/lskmy05m+8M7xDHAJcJzRJoqIsqExtlTHPDQO0Zv85g5F0rasDAXF+DLog/70hcqCJijSzPQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/mathjs/-/mathjs-6.6.5.tgz}
+    name: mathjs
+    version: 6.6.5
+    engines: {node: '>= 8'}
+    hasBin: true
+    dependencies:
+      complex.js: registry.npmmirror.com/complex.js/2.1.1
+      decimal.js: registry.npmmirror.com/decimal.js/10.4.3
+      escape-latex: registry.npmmirror.com/escape-latex/1.2.0
+      fraction.js: registry.npmmirror.com/fraction.js/4.2.0
+      javascript-natural-sort: registry.npmmirror.com/javascript-natural-sort/0.7.1
+      seed-random: registry.npmmirror.com/seed-random/2.2.0
+      tiny-emitter: registry.npmmirror.com/tiny-emitter/2.1.0
+      typed-function: registry.npmmirror.com/typed-function/1.1.1
+    dev: false
+
+  registry.npmmirror.com/seed-random/2.2.0:
+    resolution: {integrity: sha512-34EQV6AAHQGhoc0tn/96a9Fsi6v2xdqe/dMUwljGRaFOzR3EgRmECvD0O8vi8X+/uQ50LGHfkNu/Eue5TPKZkQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/seed-random/-/seed-random-2.2.0.tgz}
+    name: seed-random
+    version: 2.2.0
+    dev: false
+
+  registry.npmmirror.com/tiny-emitter/2.1.0:
+    resolution: {integrity: sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/tiny-emitter/-/tiny-emitter-2.1.0.tgz}
+    name: tiny-emitter
+    version: 2.1.0
+    dev: false
+
+  registry.npmmirror.com/typed-function/1.1.1:
+    resolution: {integrity: sha512-RbN7MaTQBZLJYzDENHPA0nUmWT0Ex80KHItprrgbTPufYhIlTePvCXZxyQK7wgn19FW5bnuaBIKcBb5mRWjB1Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typed-function/-/typed-function-1.1.1.tgz}
+    name: typed-function
+    version: 1.1.1
+    engines: {node: '>= 6'}
+    dev: false

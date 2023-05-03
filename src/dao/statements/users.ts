@@ -44,3 +44,15 @@ FROM
   users
 WHERE
   users.user_name = ?;`
+
+export const SEARCH_USERS_BY_ID_OR_NAME = `
+SELECT
+  user_id as id,
+  user_name as userName,
+  role,
+  avatar,
+  unuse
+FROM
+  users
+WHERE
+  users.user_name like ? OR users.user_id like ?;`

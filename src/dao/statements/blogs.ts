@@ -134,6 +134,13 @@ SET
 WHERE
   blogs.nanoid = ?;`;
 
+const GET_COUNT_OF_BLOGS = `
+/* 查看一共多少条数据 */
+SELECT 
+  COUNT(*)
+FROM
+  blogs;`
+
 const GET_TOP_N_READING_VOLUME_BLOGS = `
 /* 获取访问量前n的博客 */
 SELECT
@@ -165,5 +172,6 @@ export {
   UPDATE_BLOG_UPDATE_DATE,
   UPDATE_BLOG_INFO,
   INCREASE_BLOG_READING_VOLUME,
+  GET_COUNT_OF_BLOGS,
   GET_TOP_N_READING_VOLUME_BLOGS,
 };

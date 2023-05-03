@@ -12,6 +12,7 @@ const {
   parseToken,
   verifyRefreshToken,
   getUserInfo: getUserInfoService,
+  searchUser: searchUserService,
 } = authService;
 
 class AuthController {
@@ -91,20 +92,20 @@ class AuthController {
     }
     const result = parseToken(token);
     if (result.isOk) {
-      const id  = result.data?.aud
+      const id = result.data?.aud;
       if (!id) {
         ctx.body = {
           isSeccess: false,
-          msg: 'token中id为空',
-        }
+          msg: "token中id为空",
+        };
         return await next();
       }
-      const state = await getUserInfoService(id)
+      const state = await getUserInfoService(id);
       if (!state.isSuccess) {
         ctx.body = {
           isSuccess: state.isSuccess,
           msg: state.msg,
-        }
+        };
         return await next();
       }
       ctx.body = {
@@ -144,6 +145,16 @@ class AuthController {
         msg: result.msg,
       };
     }
+    await next();
+  };
+  searchUsers: Middleware = async (ctx, next) => {
+    const { userIdOrName = null } = ctx.request.query;
+    if (!userIdOrName) {
+      ctx.body = []
+      return await next();
+    }
+    const result = await searchUserService(userIdOrName as string);
+    ctx.body = result;
     await next();
   };
 }

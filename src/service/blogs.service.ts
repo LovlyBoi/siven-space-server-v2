@@ -7,6 +7,7 @@ import {
   deleteBlogById,
   updateBlogDate,
   increaseBlogReadingVolume,
+  getCountOfBlogs,
   getTopNReadingVlomueBlogs,
 } from "../dao/blogs.dao";
 import {
@@ -17,6 +18,7 @@ import {
 } from "../utils/cache";
 import { BlogType } from "../types";
 import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
+import { recommender } from "../utils/collaborativeFilter";
 import { logger } from "../utils/log";
 
 class BlogsService {
@@ -32,6 +34,17 @@ class BlogsService {
     }
     // 取前四张图片
     return handleCardPics(cards);
+  };
+  hasNextPage = async (pageSize: number, pageNumber: number) => {
+    const curCount = pageSize * pageNumber;
+    const totalCount = await getCountOfBlogs();
+    return curCount < totalCount;
+  };
+  getRecommend = async (userId: string) => {
+    const recommendIds = recommender.getRecommend(userId);
+    const blogsInfos = await Promise.all(recommendIds.map((id) => getBlogById(id)));
+    // console.log(await blogsInfos)
+    return handleCardPics(blogsInfos)
   };
   getBlogs = async (
     type: keyof typeof BlogType,

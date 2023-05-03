@@ -8,6 +8,7 @@ import {
   DELETE_BLOG_BY_ID,
   UPDATE_BLOG_UPDATE_DATE,
   INCREASE_BLOG_READING_VOLUME,
+  GET_COUNT_OF_BLOGS,
   GET_TOP_N_READING_VOLUME_BLOGS,
 } from "./statements";
 import { Blog, BlogForJSON, BlogType } from "../types";
@@ -111,6 +112,11 @@ export async function updateBlogDate(id: string) {
 // 博客阅读量+1
 export function increaseBlogReadingVolume(id: string) {
   return pool.execute(INCREASE_BLOG_READING_VOLUME, [id]);
+}
+
+export async function getCountOfBlogs() {
+  const result = await pool.execute(GET_COUNT_OF_BLOGS) as any[];
+  return result[0][0]['COUNT(*)'] as number;
 }
 
 // 获取top n访问量的博客

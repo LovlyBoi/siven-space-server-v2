@@ -6,6 +6,7 @@ import {
   getUserInfoById,
   getUserInfoByName,
   createNewUser as createNewUserDao,
+  searchUserByIdOrName,
 } from "../dao/users.dao";
 import { logger } from "../utils/log";
 import type { UserInfo } from "../types";
@@ -103,6 +104,11 @@ class AuthService {
     }
     return state;
   };
+  // 根据id或name查找用户
+  searchUser = async (idOrName: string) => {
+    return searchUserByIdOrName(idOrName)
+  }
+  // 0.5 -- 0.001
   getAccessToken = (id: string, expHour: number = 0.5) =>
     token.signToken(
       {
@@ -111,7 +117,8 @@ class AuthService {
       },
       Math.floor(Date.now() / 1000) + 60 * 60 * expHour
     );
-  getRefreshToken = (id: string, expHour: number = 24 * 3) =>
+    // 24 * 1 -- 0.003
+  getRefreshToken = (id: string, expHour: number = 24 * 1) =>
     token.signToken(
       {
         type: "refresh_token",
@@ -171,38 +178,6 @@ class AuthService {
     refreshToken: string
   ): { isOk: boolean; type: string; msg: string; data: any } => {
     // ToDo: 校验refresh_token
-    // const ret = {
-    //   isOk: false,
-    //   type: "",
-    //   msg: "",
-    // };
-    // const result = token.verifyToken(refreshToken);
-    // ret.isOk = result.isOk;
-    // if (result.isOk) {
-    //   const payload = result.payload as any;
-    //   if (payload?.type !== "refresh_token") {
-    //     ret.isOk = false;
-    //     ret.msg = "token类型错误";
-    //     ret.type = "token type error";
-    //     return ret;
-    //   }
-    //   ret.msg = "校验成功";
-    //   ret.type = "ok";
-    //   return ret;
-    // } else {
-    //   if (result.error?.name === "TokenExpiredError") {
-    //     ret.msg = "登录超时，请重新登陆";
-    //     ret.type = result.error.message;
-    //   } else if (result.error?.name === "JsonWebTokenError") {
-    //     ret.msg = "token解析失败";
-    //     ret.type = result.error.message;
-    //   } else if (result.error?.name === "NotBeforeError") {
-    //     ret.msg = "token还未生效";
-    //     ret.type = result.error.message;
-    //   } else {
-    //     let n: never;
-    //   }
-    // }
     const result = this.parseToken(refreshToken);
     if (result.data?.type && result.data?.type !== "refresh_token") {
       console.log(result);

@@ -6,3 +6,5 @@ export interface UserInfo {
   avatar: string;
   unuse: 0 | 1;
 }
+
+export type UserInfoSafe = Omit<UserInfo, 'password'>
