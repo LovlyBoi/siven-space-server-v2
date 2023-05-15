@@ -4,6 +4,7 @@ import {
   GET_USER_INFO_BY_ID,
   GET_USER_INFO_BY_NAME,
   SEARCH_USERS_BY_ID_OR_NAME,
+  UPDATE_USER_ROLE,
 } from "./statements";
 
 import { UserInfo, UserInfoSafe } from "../types";
@@ -35,3 +36,7 @@ export const searchUserByIdOrName = async (idOrName: string) => {
   ]);
   return result[0] as unknown as UserInfoSafe[];
 };
+
+export const updateUserRole = async (id: string, role: 1 | 2 | 3) => {
+  return pool.execute(UPDATE_USER_ROLE, [role, id])
+}

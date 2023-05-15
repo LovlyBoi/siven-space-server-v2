@@ -4,12 +4,12 @@ import { blogService } from "../service/blogs.service";
 import { isMarkDownExist } from "../utils/cache";
 import { Blog, BlogForJSON, BlogType, ParsedHtmlForJSON } from "../types";
 import { logger } from "../utils/log";
+import { nanoid } from "nanoid";
 
 const {
   getAllBlogs,
-  // getEssayBlogs,
-  // getNoteBlogs,
   hasNextPage,
+  getBlogsByAuthor: getBlogsByAuthorService,
   getRecommend: getRecommendService,
   getBlogs: getBlogsService,
   getBlogById: getBlogByIdService,
@@ -20,6 +20,9 @@ const {
   deleteBlog: deleteBlogService,
   updateBlogDate: updateBlogDateService,
   getTopNReadingVlomueBlogs: getTopNReadingVlomueBlogsService,
+  getBlogsToBeAudit: getBlogsToBeAuditService,
+  auditBlog: auditBlogService,
+  commitBlogToAudit: commitBlogToAuditService,
 } = blogService;
 
 class BlogController {
@@ -42,7 +45,7 @@ class BlogController {
       } else {
         cards = await getAllBlogs(ps, pn);
       }
-      hasNext = await hasNextPage(ps, pn);
+      hasNext = await hasNextPage(ps, pn, type as keyof typeof BlogType);
     } catch (e: unknown) {
       const err = e as Error;
       return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
@@ -51,16 +54,50 @@ class BlogController {
     ctx.body = { cards, hasNext };
     await next();
   };
+  getBlogsByAuthor: Middleware = async (ctx, next) => {
+    const authorId = (ctx.query._userId as string) || "";
+    if (!authorId) {
+      return useEmit(
+        ErrorType.BadRequest,
+        ctx,
+        Error(""),
+        "Need param: 'authorId'"
+      );
+    }
+    let cards: BlogForJSON[] | string | Buffer;
+    try {
+      cards = await getBlogsByAuthorService(authorId);
+    } catch (e: unknown) {
+      const err = e as Error;
+      return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
+    }
+    ctx.type = "application/json";
+    ctx.body = { cards, hasNext: false };
+    await next();
+  };
   getRecommend: Middleware = async (ctx, next) => {
-    const visitorId = ctx.query.visitorId as string | undefined
+    const visitorId = ctx.query.visitorId as string | undefined;
     if (!visitorId) {
-      ctx.body = []
-      return
+      ctx.body = [];
+      return;
     }
     const recommend = await getRecommendService(visitorId);
-    ctx.body = recommend
-    await next()
-  }
+    ctx.body = recommend;
+    await next();
+  };
+  // 待审核
+  getBlogsToBeAudit: Middleware = async (ctx, next) => {
+    let cards: BlogForJSON[] | string | Buffer;
+    try {
+      cards = await getBlogsToBeAuditService();
+    } catch (e: unknown) {
+      const err = e as Error;
+      return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
+    }
+    ctx.type = "application/json";
+    ctx.body = { cards, hasNext: false };
+    await next();
+  };
   // 获取博客正文
   getBlogById: Middleware = async (ctx, next) => {
     const id = ctx.params.id as string;
@@ -128,6 +165,7 @@ class BlogController {
     try {
       await editBlogMarkdownService(id, content);
       await updateBlogDateService(id);
+      await commitBlogToAuditService(id);
       ctx.body = "修改成功";
       logger.info("博客文章修改" + id);
     } catch (e) {
@@ -139,6 +177,7 @@ class BlogController {
         "修改失败"
       );
     }
+    await next()
   };
   // 编辑博客（博客信息）
   editBlogInfo: Middleware = async (ctx, next) => {
@@ -200,6 +239,30 @@ class BlogController {
       );
     }
     ctx.body = "删除成功";
+    await next();
+  };
+  // 审核博客
+  auditBlog: Middleware = async (ctx, next) => {
+    const auditId = nanoid();
+    const blogId = ctx.params.blogId;
+    const adminId = ctx.query._userId as string | undefined;
+    const { state, msg } = ctx.request.body;
+    if (
+      !auditId ||
+      !adminId ||
+      !blogId ||
+      !(state === 0 || state === 1 || state === 2)
+    ) {
+      return useEmit(
+        ErrorType.BadRequest,
+        ctx,
+        Error(""),
+        "Cannot find param."
+      );
+    }
+    console.log(msg)
+    await auditBlogService(auditId, adminId, blogId, state, msg);
+    ctx.body = "审核操作成功";
     await next();
   };
 }

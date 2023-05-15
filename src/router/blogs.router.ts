@@ -1,7 +1,7 @@
 import KoaRouter from "koa-router";
 import { blogController } from "../controller/blogs.controller";
-import { checkAccessToken } from '../middleware/auth.middleware';
-import { createVisitRecommend } from '../middleware/tracker.middleware';
+import { checkAccessToken, checkManager } from "../middleware/auth.middleware";
+import { createVisitRecommend } from "../middleware/tracker.middleware";
 
 const {
   getBlogs,
@@ -12,11 +12,23 @@ const {
   editBlogMarkdown,
   editBlogInfo,
   getTopNReadingVlomueBlogs,
+  getBlogsByAuthor,
+  getBlogsToBeAudit,
+  auditBlog,
 } = blogController;
 
 const blogsRouter = new KoaRouter({ prefix: "/blogs" });
 
 blogsRouter.get("/", getBlogs);
+
+blogsRouter.get("/blogsByAuthor", checkAccessToken, getBlogsByAuthor);
+
+blogsRouter.get(
+  "/blogsToBeAudit",
+  checkAccessToken,
+  checkManager,
+  getBlogsToBeAudit
+);
 
 blogsRouter.get("/recommend", getRecommend);
 
@@ -31,5 +43,7 @@ blogsRouter.post("/edit/blog", checkAccessToken, editBlogInfo);
 blogsRouter.post("/publish", checkAccessToken, publishBlog);
 
 blogsRouter.get("/top/readingVolume", getTopNReadingVlomueBlogs);
+
+blogsRouter.post("/audit/:blogId", checkAccessToken, checkManager, auditBlog);
 
 export { blogsRouter };

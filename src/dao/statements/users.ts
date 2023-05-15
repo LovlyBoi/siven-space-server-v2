@@ -56,3 +56,12 @@ FROM
   users
 WHERE
   users.user_name like ? OR users.user_id like ?;`
+
+export const UPDATE_USER_ROLE = `
+/* 更新用户身份 */
+UPDATE
+  users
+SET
+  users.role = ?
+WHERE
+  users.user_id = ?;`

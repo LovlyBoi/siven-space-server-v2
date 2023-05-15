@@ -13,6 +13,7 @@ const {
   verifyRefreshToken,
   getUserInfo: getUserInfoService,
   searchUser: searchUserService,
+  updateUserRole: updateUserRoleService,
 } = authService;
 
 class AuthController {
@@ -148,16 +149,82 @@ class AuthController {
     await next();
   };
   searchUsers: Middleware = async (ctx, next) => {
-    const { userIdOrName = null } = ctx.request.query;
+    const { userIdOrName = null, _userId = "" } = ctx.query;
+    // const { _userId = "" } = ctx.query;
+    const state = await getUserInfoService(_userId as string);
+    console.log(state);
+    if (
+      !state.isSuccess ||
+      !(state.userInfo?.role === 2 || state.userInfo?.role === 3)
+    )
+      return useEmit(
+        ErrorType.Forbidden,
+        ctx,
+        Error(""),
+        "Your permission is not allowed."
+      );
     if (!userIdOrName) {
-      ctx.body = []
+      ctx.body = [];
       return await next();
     }
     const result = await searchUserService(userIdOrName as string);
     ctx.body = result;
     await next();
   };
+  // 修改用户身份
+  setUserRole: Middleware = async (ctx, next) => {
+    const { _userId: adminId = "" } = ctx.query;
+    const { userId, oldRole, newRole } = ctx.request.body;
+    const state = await getUserInfoService(adminId as string);
+    // console.log(state, userId, oldRole, newRole);
+    const noPermission = () =>
+      useEmit(
+        ErrorType.Forbidden,
+        ctx,
+        Error(""),
+        "Your permission is not allowed."
+      );
+    if (
+      !state.isSuccess ||
+      !(state.userInfo?.role === 2 || state.userInfo?.role === 3)
+    )
+      return noPermission();
+    const role = state.userInfo?.role;
+    if (!userId || !oldRole || !newRole) {
+      return useEmit(
+        ErrorType.Forbidden,
+        ctx,
+        Error(""),
+        "Params is required."
+      );
+    }
+    if (!checkPermission(role, oldRole, newRole)) {
+      return noPermission();
+    }
+    await updateUserRoleService(userId, newRole);
+    ctx.body = "success";
+    await next();
+  };
 }
+
+const checkPermission = (
+  role: 1 | 2 | 3,
+  oldRole: 1 | 2 | 3,
+  newRole: 1 | 2 | 3
+) => {
+  if (role === 2) {
+    // 当前用户是管理员，只能把普通用户晋升为管理员
+    if (oldRole === 1 && newRole === 2) {
+      return true;
+    }
+    return false;
+  } else if (role === 3) {
+    // 当前用户是超管，什么都可以做
+    return true;
+  } else {
+    return false;
+  }
+};
 
 const authController = new AuthController();
 

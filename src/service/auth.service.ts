@@ -7,6 +7,7 @@ import {
   getUserInfoByName,
   createNewUser as createNewUserDao,
   searchUserByIdOrName,
+  updateUserRole,
 } from "../dao/users.dao";
 import { logger } from "../utils/log";
 import type { UserInfo } from "../types";
@@ -187,6 +188,10 @@ class AuthService {
     }
     return result;
   };
+  // 晋升用户
+  updateUserRole = (id: string, role: 1 | 2 | 3) => {
+    return updateUserRole(id, role)
+  }
 }
 
 const authService = new AuthService();
