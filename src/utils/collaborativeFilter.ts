@@ -37,6 +37,7 @@ class Recommender {
     return map;
   }
 
+  // #region
   get userNum() {
     return this.idx2UserId.length;
   }
@@ -129,6 +130,7 @@ class Recommender {
     const result = recommend.cFilter(this.ratings, userIdx) as number[];
     return result.map((itemIdx) => this.getItemId(itemIdx));
   }
+  // #endregion
 
   persistence() {
     return new Promise<void>((resolve, reject) => {

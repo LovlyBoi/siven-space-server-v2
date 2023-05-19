@@ -116,9 +116,9 @@ export async function getBlogsToBeAudit() {
 }
 
 // 通过 id 拿到具体的博客信息
-export async function getBlogById(id: string): Promise<BlogForJSON> {
+export async function getBlogById(id: string): Promise<BlogWithAudit> {
   const result = await pool.execute(GET_BLOG_BY_ID, [id]);
-  return (result[0] as unknown[])[0] as BlogForJSON;
+  return (result[0] as unknown[])[0] as BlogWithAudit;
 }
 
 // 编辑博客信息

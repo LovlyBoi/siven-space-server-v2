@@ -74,9 +74,9 @@ class BlogsService {
   };
   getRecommend = async (userId: string) => {
     const recommendIds = recommender.getRecommend(userId);
-    const blogsInfos = await Promise.all(
-      recommendIds.map((id) => getBlogById(id))
-    );
+    const blogsInfos = (
+      await Promise.all(recommendIds.map((id) => getBlogById(id)))
+    ).filter((info) => info.audit === 0);
     return handleCardPics(blogsInfos);
   };
   getBlogsToBeAudit = async () => {

@@ -140,15 +140,13 @@ SELECT
   type,
   title,
   pics as pictures,
+  audit,
   JSON_OBJECT("name", tag_name, "color", tag_color) as tag,
   publish_date as publishDate,
   update_date as updateDate
 FROM
   blogs
-INNER JOIN
-  users
-ON
-  users.user_id = blogs.author
+  INNER JOIN users ON users.user_id = blogs.author
 WHERE
   blogs.nanoid = ?
   AND blogs.unuse = 0;`;
