@@ -97,6 +97,7 @@ export async function getAllBlogs(
       ((pageNumber - 1) * pageSize).toString(),
     ])) as unknown[]
   )[0] as Blog[];
+  console.log(result)
   // result = result[0] as unknown as Blog[];
   return Blog2BlogForJSON(result);
 }

@@ -3,7 +3,7 @@ import recommend from "collaborative-filter";
 import { writeFile, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 
-class Recommender {
+export class Recommender {
   ratings: number[][];
 
   userId2Idx: Map<string, number>;
@@ -15,9 +15,9 @@ class Recommender {
   constructor(matrix: number[][], users: string[], items: string[]);
   constructor(matrix?: number[][], users?: string[], items?: string[]) {
     if (matrix && users && items) {
-      this.ratings = matrix;
-      this.idx2UserId = users;
-      this.idx2ItemId = items;
+      this.ratings = Array.from(matrix);
+      this.idx2UserId = Array.from(users);
+      this.idx2ItemId = Array.from(items);
       this.userId2Idx = this.initMap(users);
       this.itemId2Idx = this.initMap(items);
     } else {
