@@ -31,18 +31,18 @@ class Token {
     });
   };
 
-  verifyToken = (
+  verifyToken = <T = any>(
     token: string
   ): {
     isOk: boolean;
     error: jwt.VerifyErrors | null;
-    payload: jwt.JwtPayload | string | null;
+    payload: T | null;
   } => {
     // ToDo: 封装jwt校验token函数，避免直接抛出错误。
-    let payload: jwt.JwtPayload | string | null = null;
+    let payload: T | null = null;
     let error: jwt.VerifyErrors | null = null;
     try {
-      payload = jwt.verify(token, this.secretKey);
+      payload = jwt.verify(token, this.secretKey) as T;
     } catch (e) {
       error = e as jwt.VerifyErrors;
     }

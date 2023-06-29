@@ -21,8 +21,9 @@ try {
     host: process.env.DB_HOST,
     port: parsePort(process.env.DB_PORT),
   });
-  logger.info("主数据库连接成功");
+  logger.info("🔗 连接主数据库...");
 } catch (e) {
+  console.log("❌ 连接主数据库失败")
   logger.error({
     errorStack: (e as Error).stack,
     errorMessage: (e as Error).message,
@@ -37,8 +38,9 @@ try {
     host: process.env.DB_HOST,
     port: parsePort(process.env.DB_PORT),
   });
-  logger.info("流量数据库连接成功");
+  logger.info("🔗 连接流量数据库...");
 } catch (e) {
+  console.log("❌ 连接流量数据库失败")
   logger.error({
     errorStack: (e as Error).stack,
     errorMessage: (e as Error).message,

@@ -98,4 +98,6 @@ export const startLog = () => {
   logger.log("info", `服务启动于${process.env.APP_PORT}端口`);
 };
 
+import '../utils/collaborativeFilter'
+
 export default app;

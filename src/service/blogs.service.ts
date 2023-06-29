@@ -7,7 +7,13 @@ import {
   deleteBlogById,
   updateBlogDate,
   increaseBlogReadingVolume,
+  getCountOfBlogs,
+  getCountOfBlogsByType,
   getTopNReadingVlomueBlogs,
+  getAllBlogsByAuthor,
+  getBlogsToBeAudit,
+  createAuditRecord,
+  updateAuditState,
 } from "../dao/blogs.dao";
 import {
   getHtmlById,
@@ -16,7 +22,14 @@ import {
   removeCache,
 } from "../utils/cache";
 import { BlogType } from "../types";
-import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
+import type {
+  Blog,
+  BlogForJSON,
+  BlogWithAudit,
+  ParsedHtmlForJSON,
+  ParsedHtml,
+} from "../types";
+import { recommender } from "../utils/collaborativeFilter";
 import { logger } from "../utils/log";
 
 class BlogsService {
@@ -33,11 +46,10 @@ class BlogsService {
     // 取前四张图片
     return handleCardPics(cards);
   };
-  // 获取笔记类型博客
-  getNoteBlogs = async (pageSize: number, pageNumber: number) => {
-    let cards: BlogForJSON[];
+  getBlogsByAuthor = async (id: string) => {
+    let cards: BlogWithAudit[];
     try {
-      cards = await getBlogsByType(BlogType.note, pageSize, pageNumber);
+      cards = await getAllBlogsByAuthor(id);
     } catch (e) {
       const error = e as Error;
       logger.error({ errorMessage: error.message, errorStack: error.stack });
@@ -46,17 +58,79 @@ class BlogsService {
     // 取前四张图片
     return handleCardPics(cards);
   };
-  // 获取随笔类型博客
-  getEssayBlogs = async (pageSize: number, pageNumber: number) => {
-    let cards: BlogForJSON[];
+  hasNextPage = async (
+    pageSize: number,
+    pageNumber: number,
+    type?: keyof typeof BlogType
+  ) => {
+    const curCount = pageSize * pageNumber;
+    let totalCount: number;
+    if (!type) {
+      totalCount = await getCountOfBlogs();
+    } else {
+      totalCount = await getCountOfBlogsByType(type);
+    }
+    return curCount < totalCount;
+  };
+  getRecommend = async (userId: string) => {
+    const recommendIds = recommender.getRecommend(userId);
+    const blogsInfos = (
+      await Promise.all(recommendIds.map((id) => getBlogById(id)))
+    ).filter((info) => info.audit === 0);
+    return handleCardPics(blogsInfos);
+  };
+  getBlogsToBeAudit = async () => {
+    let cards: BlogWithAudit[];
     try {
-      cards = await getBlogsByType(BlogType.essay, pageSize, pageNumber);
+      cards = await getBlogsToBeAudit();
     } catch (e) {
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
       throw new Error("数据库读取失败");
     }
     // 取前四张图片
     return handleCardPics(cards);
   };
+  getBlogs = async (
+    type: keyof typeof BlogType,
+    pageSize: number,
+    pageNumber: number
+  ) => {
+    let cards: BlogForJSON[];
+    try {
+      cards = await getBlogsByType(BlogType[type], pageSize, pageNumber);
+    } catch (e) {
+      const error = e as Error;
+      logger.error({ errorMessage: error.message, errorStack: error.stack });
+      throw new Error("数据库读取失败");
+    }
+    // 取前四张图片
+    return handleCardPics(cards);
+  };
+  // 获取笔记类型博客
+  // getNoteBlogs = async (pageSize: number, pageNumber: number) => {
+  //   let cards: BlogForJSON[];
+  //   try {
+  //     cards = await getBlogsByType(BlogType.note, pageSize, pageNumber);
+  //   } catch (e) {
+  //     const error = e as Error;
+  //     logger.error({ errorMessage: error.message, errorStack: error.stack });
+  //     throw new Error("数据库读取失败");
+  //   }
+  //   // 取前四张图片
+  //   return handleCardPics(cards);
+  // };
+  // // 获取随笔类型博客
+  // getEssayBlogs = async (pageSize: number, pageNumber: number) => {
+  //   let cards: BlogForJSON[];
+  //   try {
+  //     cards = await getBlogsByType(BlogType.essay, pageSize, pageNumber);
+  //   } catch (e) {
+  //     throw new Error("数据库读取失败");
+  //   }
+  //   // 取前四张图片
+  //   return handleCardPics(cards);
+  // };
   // 获取阅读量前n的博客
   getTopNReadingVlomueBlogs = async (n: number = 10) => {
     let cards: any[];
@@ -77,7 +151,10 @@ class BlogsService {
       getHtmlById(id),
     ]);
     increaseBlogReadingVolume(id);
-    return { parsed, ...blogInfo };
+    return {
+      parsed,
+      ...blogInfo,
+    };
   };
   // 拿到博客markdown原文（可读流）
   getBlogMarkdown = (id: string) => getMarkdown(id);
@@ -104,6 +181,21 @@ class BlogsService {
   deleteBlog = async (id: string) => await deleteBlogById(id);
   // 更新博客日期
   updateBlogDate = async (id: string) => await updateBlogDate(id);
+  // 审核博客
+  auditBlog = async (
+    auditId: string,
+    adminId: string,
+    blogId: string,
+    state: 0 | 2,
+    msg?: string
+  ) => {
+    await createAuditRecord(auditId, adminId, blogId, msg || "");
+    await updateAuditState(blogId, state, auditId);
+  };
+  // 将博客提交审核
+  commitBlogToAudit = async (blogId: string) => {
+    await updateAuditState(blogId, 1, "");
+  };
 }
 
 function handleCardPics(cards: any[], limit: number = 4) {

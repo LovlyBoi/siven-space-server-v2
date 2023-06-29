@@ -106,6 +106,3 @@ export async function updateTodayVisitors() {
     updatePvRecords(year, month, date, count);
   }
 }
-
-// updateTodayVisitors()
-// selectPvByPeriod("2022-9-9", "2022-10-30");

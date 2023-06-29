@@ -5,6 +5,8 @@ interface Blog {
   type: BlogType;
   title: string;
   pictures: string;
+  audit: 0 | 1 | 2;
+  auditMsg?: string;
   tag: {
     name: string;
     color: TagColor;
@@ -26,11 +28,25 @@ interface BlogForJSON {
   };
   publishDate: string;
   updateDate: string;
-};
+}
+
+interface BlogWithAudit extends BlogForJSON {
+  /**
+   * 0: 审核通过
+   * 1: 待审核
+   * 2: 审核不通过
+   */
+  audit: 0 | 1 | 2;
+  auditMsg?: string;
+}
 
 enum BlogType {
-  "note" = 1,
-  "essay" = 2,
+  "meat-dish" = 1,
+  "vegetable-dish",
+  "staple",
+  "dessert",
+  "drink",
+  "soup",
 }
 
 type TagColor = "yellow" | "pink" | "green" | "indigo";
@@ -56,6 +72,7 @@ interface ParsedHtmlForJSON extends BlogForJSON {
 export {
   Blog,
   BlogForJSON,
+  BlogWithAudit,
   BlogType,
   TagColor,
   OutlineItem,

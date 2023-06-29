@@ -19,6 +19,9 @@ class TrackerController {
     }
     await next();
   };
+  createVisit: Middleware = async (ctx, next) => {
+    
+  }
   // 获取pv
   getPv: Middleware = async (ctx, next) => {
     const start = ctx.request.query.start as string | undefined;

@@ -2,13 +2,16 @@ import { Middleware } from "koa";
 import { useEmit, ErrorType } from "../utils/useErrorEmit";
 import { blogService } from "../service/blogs.service";
 import { isMarkDownExist } from "../utils/cache";
-import type { Blog, BlogForJSON, ParsedHtmlForJSON } from "../types";
+import { Blog, BlogForJSON, BlogType, ParsedHtmlForJSON } from "../types";
 import { logger } from "../utils/log";
+import { nanoid } from "nanoid";
 
 const {
   getAllBlogs,
-  getEssayBlogs,
-  getNoteBlogs,
+  hasNextPage,
+  getBlogsByAuthor: getBlogsByAuthorService,
+  getRecommend: getRecommendService,
+  getBlogs: getBlogsService,
   getBlogById: getBlogByIdService,
   getBlogMarkdown: getBlogMarkdownService,
   editBlogMarkdown: editBlogMarkdownService,
@@ -17,36 +20,88 @@ const {
   deleteBlog: deleteBlogService,
   updateBlogDate: updateBlogDateService,
   getTopNReadingVlomueBlogs: getTopNReadingVlomueBlogsService,
+  getBlogsToBeAudit: getBlogsToBeAuditService,
+  auditBlog: auditBlogService,
+  commitBlogToAudit: commitBlogToAuditService,
 } = blogService;
 
 class BlogController {
   // 根据类型进行分类
   getBlogs: Middleware = async (ctx, next) => {
-    const type = ctx.query.type;
+    const type = ctx.query.type as string | undefined;
+    const from = ctx.query.from as string | undefined;
     let ps = parseInt(ctx.query.ps as string);
     let pn = parseInt(ctx.query.pn as string);
     ps = ps == null || Number.isNaN(ps) ? 10 : ps;
     pn = pn == null || Number.isNaN(pn) ? 1 : pn;
+    if (from === "cms") {
+      ps = 999;
+    }
     let cards: BlogForJSON[] | string | Buffer;
+    let hasNext: boolean;
     try {
-      if (type === "note") {
-        cards = await getNoteBlogs(ps, pn);
-      } else if (type === "essay") {
-        cards = await getEssayBlogs(ps, pn);
+      if (type && type in BlogType) {
+        cards = await getBlogsService(type as keyof typeof BlogType, ps, pn);
       } else {
         cards = await getAllBlogs(ps, pn);
       }
+      hasNext = await hasNextPage(ps, pn, type as keyof typeof BlogType);
     } catch (e: unknown) {
       const err = e as Error;
       return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
     }
     ctx.type = "application/json";
-    ctx.body = cards;
+    ctx.body = { cards, hasNext };
+    await next();
+  };
+  getBlogsByAuthor: Middleware = async (ctx, next) => {
+    const authorId = (ctx.query._userId as string) || "";
+    if (!authorId) {
+      return useEmit(
+        ErrorType.BadRequest,
+        ctx,
+        Error(""),
+        "Need param: 'authorId'"
+      );
+    }
+    let cards: BlogForJSON[] | string | Buffer;
+    try {
+      cards = await getBlogsByAuthorService(authorId);
+    } catch (e: unknown) {
+      const err = e as Error;
+      return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
+    }
+    ctx.type = "application/json";
+    ctx.body = { cards, hasNext: false };
+    await next();
+  };
+  getRecommend: Middleware = async (ctx, next) => {
+    const visitorId = ctx.query.visitorId as string | undefined;
+    if (!visitorId) {
+      ctx.body = [];
+      return;
+    }
+    const recommend = await getRecommendService(visitorId);
+    ctx.body = recommend;
+    await next();
+  };
+  // 待审核
+  getBlogsToBeAudit: Middleware = async (ctx, next) => {
+    let cards: BlogForJSON[] | string | Buffer;
+    try {
+      cards = await getBlogsToBeAuditService();
+    } catch (e: unknown) {
+      const err = e as Error;
+      return useEmit(ErrorType.InternalServerError, ctx, err, "cards 获取失败");
+    }
+    ctx.type = "application/json";
+    ctx.body = { cards, hasNext: false };
     await next();
   };
   // 获取博客正文
   getBlogById: Middleware = async (ctx, next) => {
     const id = ctx.params.id as string;
+    const visitorId = ctx.query.visitorId as string;
     const notFound = () =>
       useEmit(ErrorType.NotFound, ctx, new Error("请求地址不存在"));
     const serverError = () =>
@@ -110,6 +165,7 @@ class BlogController {
     try {
       await editBlogMarkdownService(id, content);
       await updateBlogDateService(id);
+      await commitBlogToAuditService(id);
       ctx.body = "修改成功";
       logger.info("博客文章修改" + id);
     } catch (e) {
@@ -121,6 +177,7 @@ class BlogController {
         "修改失败"
       );
     }
+    await next()
   };
   // 编辑博客（博客信息）
   editBlogInfo: Middleware = async (ctx, next) => {
@@ -182,6 +239,30 @@ class BlogController {
       );
     }
     ctx.body = "删除成功";
+    await next();
+  };
+  // 审核博客
+  auditBlog: Middleware = async (ctx, next) => {
+    const auditId = nanoid();
+    const blogId = ctx.params.blogId;
+    const adminId = ctx.query._userId as string | undefined;
+    const { state, msg } = ctx.request.body;
+    if (
+      !auditId ||
+      !adminId ||
+      !blogId ||
+      !(state === 0 || state === 1 || state === 2)
+    ) {
+      return useEmit(
+        ErrorType.BadRequest,
+        ctx,
+        Error(""),
+        "Cannot find param."
+      );
+    }
+    console.log(msg)
+    await auditBlogService(auditId, adminId, blogId, state, msg);
+    ctx.body = "审核操作成功";
     await next();
   };
 }

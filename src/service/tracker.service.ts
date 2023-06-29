@@ -12,9 +12,16 @@ class TrackerService {
   createVisitor = async (ip: string) => {
     // ip = "::ffff:42.100.183.172";
     const id = nanoid();
+    if (ip === "::ffff:127.0.0.1") {
+      return {
+        id,
+        ip,
+        ipInfo: 'localhost',
+      };
+    }
     const ipInfo = geoip.lookup(ip);
     if (!ipInfo) {
-      throw new Error("client ip is invalid");
+      throw new Error("client ip is invalid: " + ip);
     }
     // 中文的ip地址信息
     const region = getCNRegion(
